@@ -1,0 +1,13 @@
+[package]
+name = "rrss"
+description = "Rust rss reader"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.197", features = ["derive"] }
+serde-xml-rs = "0.6.0"
+serde_xml = "0.9.1"
+
