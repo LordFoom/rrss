@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize)]
 struct Rss {
