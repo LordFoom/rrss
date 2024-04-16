@@ -1,5 +1,12 @@
+use clap::Parser;
+
 mod model;
 
+#[derive(Parser, Debug)]
+struct Args {
+    url: String,
+}
+
 fn main() {
-    println!("Hello, world!");
+    let args = Args::parse();
 }
