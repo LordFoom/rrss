@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
+use serde::Deserialize;
 use serde_xml_rs::from_str;
 
 mod model;
@@ -21,7 +22,10 @@ async fn main() -> Result<()> {
 
     println!("Text: {}", txt);
 
-    let rss: Rss = from_str(&txt).unwrap();
+    let mut de = serde_xml_rs::Deserializer::new_from_reader(txt.as_bytes())
+        .non_contiguous_seq_elements(true);
+    let rss = Rss::deserialize(&mut de).unwrap();
     println!("Rss: {:?}", rss);
+    println!("Channel: {:?}", rss.channel);
     Ok(())
 }
