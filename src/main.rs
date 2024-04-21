@@ -9,7 +9,7 @@ mod model;
 
 #[derive(Parser, Debug)]
 struct Args {
-    url: String,
+    urls: Vec<String>,
 }
 
 //TODO Do multiple file urls from cli
@@ -18,11 +18,12 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    let url = args.url;
-    if let Some(channel) = fetch_rss_feed(&url).await? {
-        display_channel(&channel);
-    } else {
-        println!("No rss channel found...");
+    for url in args.urls {
+        if let Some(channel) = fetch_rss_feed(&url).await? {
+            display_channel(&channel);
+        } else {
+            println!("No rss channel found...");
+        }
     }
     // let result = reqwest::get(url).await?;
     // println!("{:?}", result);
