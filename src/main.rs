@@ -1,12 +1,11 @@
 use anyhow::Result;
 use api::fetch_rss_feed;
 use clap::Parser;
-use serde::Deserialize;
+use display::display_channel;
 
 mod api;
 mod display;
 mod model;
-use model::Rss;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -19,7 +18,7 @@ async fn main() -> Result<()> {
 
     let url = args.url;
     if let Some(channel) = fetch_rss_feed(&url).await? {
-        println!("Channel: {:?}", channel);
+        display_channel(&channel);
     } else {
         println!("No rss channel found...");
     }
