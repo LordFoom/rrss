@@ -12,6 +12,8 @@ struct Args {
     url: String,
 }
 
+//TODO Do multiple file urls from cli
+//TODO Allow url in config file
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
