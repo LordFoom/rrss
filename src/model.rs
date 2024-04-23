@@ -14,7 +14,7 @@ pub struct Channel {
     pub link: Vec<String>,
     pub description: String,
     #[serde(rename = "pubDate")]
-    pub pub_date: String,
+    pub pub_date: Option<String>,
     #[serde(rename = "item")]
     pub items: Vec<Item>,
 }
@@ -28,4 +28,5 @@ pub struct Item {
     pub link: Option<String>,
     pub description: Option<String>,
     pub enclosure: Option<String>,
+    pub pubDate: Option<String>,
 }
