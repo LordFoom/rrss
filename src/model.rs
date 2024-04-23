@@ -24,7 +24,8 @@ pub struct Channel {
 pub struct Item {
     // pub title: String,
     // pub link: String,
-    pub title: Option<String>,
-    pub link: String,
-    pub description: String,
+    pub title: Option<Vec<String>>,
+    pub link: Option<String>,
+    pub description: Option<String>,
+    pub enclosure: Option<String>,
 }

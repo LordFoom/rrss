@@ -10,9 +10,24 @@ pub fn display_channel(channel: &Channel) {
         channel.description.cyan()
     );
     channel.items.iter().for_each(|item| {
-        if let Some(title) = item.title.clone() {
-            println!("{}", title.truecolor(255, 155, 0));
+        if let Some(titles) = item.title.clone() {
+            titles
+                .iter()
+                .for_each(|l| println!("{}", l.truecolor(255, 155, 0)));
         }
-        println!("{}", item.link.cyan());
+
+        if let Some(a_description) = item.description.clone() {
+            println!("{}", a_description.cyan());
+        }
+
+        if let Some(a_link) = item.link.clone() {
+            println!("{}", a_link.yellow());
+        }
+
+        if let Some(an_enclosure) = item.enclosure.clone() {
+            println!("{}", an_enclosure.magenta());
+        }
+
+        println!();
     });
 }
