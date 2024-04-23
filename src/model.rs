@@ -27,6 +27,16 @@ pub struct Item {
     pub title: Option<Vec<String>>,
     pub link: Option<String>,
     pub description: Option<String>,
-    pub enclosure: Option<String>,
-    pub pubDate: Option<String>,
+    //TODO this needs to be its own object
+    pub enclosure: Option<Enclosure>,
+    #[serde(rename = "pubDate")]
+    pub pub_date: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct Enclosure {
+    pub url: String,
+    pub length: String,
+    #[serde(rename = "type")]
+    pub enclosure_type: String,
 }

@@ -11,9 +11,10 @@ pub fn display_channel(channel: &Channel) {
     );
     channel.items.iter().for_each(|item| {
         if let Some(titles) = item.title.clone() {
-            titles
-                .iter()
-                .for_each(|l| println!("{}", l.truecolor(255, 155, 0)));
+            if titles.len() > 0 {
+                let l = titles.get(0).unwrap();
+                println!("{}", l.truecolor(255, 155, 0));
+            }
         }
 
         if let Some(a_description) = item.description.clone() {
@@ -25,7 +26,7 @@ pub fn display_channel(channel: &Channel) {
         }
 
         if let Some(an_enclosure) = item.enclosure.clone() {
-            println!("{}", an_enclosure.magenta());
+            println!("{:?}", an_enclosure);
         }
 
         println!();
