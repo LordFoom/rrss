@@ -28,6 +28,9 @@ pub fn display_channel(channel: &Channel) {
         if let Some(an_enclosure) = item.enclosure.clone() {
             println!("{:?}", an_enclosure);
         }
+        if let Some(dt) = item.pub_date.clone() {
+            println!("{}", dt.truecolor(46, 139, 87));
+        }
 
         println!();
     });
