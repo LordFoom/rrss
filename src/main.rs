@@ -2,6 +2,8 @@ use anyhow::Result;
 use api::fetch_rss_feed;
 use clap::Parser;
 use display::display_channel;
+use log::Level;
+use log4rs::append::console::ConsoleAppender;
 
 mod api;
 mod display;
@@ -10,6 +12,8 @@ mod model;
 #[derive(Parser, Debug)]
 struct Args {
     urls: Vec<String>,
+    #[arg(short, long)]
+    verbose: Option<bool>,
 }
 
 //TODO Do multiple file urls from cli

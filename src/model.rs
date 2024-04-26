@@ -17,7 +17,7 @@ pub struct Channel {
     pub pub_date: Option<String>,
     #[serde(rename = "item")]
     pub items: Vec<Item>,
-    pub image: Option<Image>,
+    pub image: Option<Vec<Image>>,
 }
 
 ///News items in the channel
@@ -44,7 +44,8 @@ pub struct Enclosure {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Image {
-    pub url: String,
-    pub link: String,
-    pub title: String,
+    pub url: Option<String>,
+    pub href: Option<String>,
+    pub link: Option<String>,
+    pub title: Option<String>,
 }
