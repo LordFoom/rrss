@@ -2,8 +2,12 @@ use anyhow::Result;
 use api::fetch_rss_feed;
 use clap::Parser;
 use display::display_channel;
-use log::Level;
-use log4rs::append::console::ConsoleAppender;
+use log::{debug, LevelFilter};
+use log4rs::{
+    append::console::ConsoleAppender,
+    config::{Appender, Root},
+    Config,
+};
 
 mod api;
 mod display;
@@ -13,7 +17,24 @@ mod model;
 struct Args {
     urls: Vec<String>,
     #[arg(short, long)]
-    verbose: Option<bool>,
+    verbose: bool,
+}
+
+pub fn init_logging(verbose: bool) -> Result<()> {
+    let stdout = ConsoleAppender::builder().build();
+
+    let lvl_filter = if verbose {
+        LevelFilter::Debug
+    } else {
+        LevelFilter::Info
+    };
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .build(Root::builder().appender("stdout").build(lvl_filter))?;
+
+    log4rs::init_config(config)?;
+    Ok(())
 }
 
 //TODO Do multiple file urls from cli
@@ -22,11 +43,13 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
+    init_logging(args.verbose)?;
+
     for url in args.urls {
         if let Some(channel) = fetch_rss_feed(&url).await? {
             display_channel(&channel);
         } else {
-            println!("No rss channel found...");
+            debug!("No rss channel found...");
         }
     }
     // let result = reqwest::get(url).await?;

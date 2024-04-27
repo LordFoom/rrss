@@ -11,8 +11,8 @@ pub fn display_channel(channel: &Channel) {
     );
     channel.items.iter().for_each(|item| {
         if let Some(titles) = item.title.clone() {
-            if titles.len() > 0 {
-                let l = titles.get(0).unwrap();
+            if !titles.is_empty() {
+                let l = titles.first().unwrap();
                 println!("{}", l.truecolor(255, 155, 0));
             }
         }
