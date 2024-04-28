@@ -12,6 +12,7 @@ use log4rs::{
 mod api;
 mod display;
 mod model;
+mod tui;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -39,6 +40,7 @@ pub fn init_logging(verbose: bool) -> Result<()> {
 
 //TODO Do multiple file urls from cli
 //TODO Allow url in config file
+//TODO make a tui
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();

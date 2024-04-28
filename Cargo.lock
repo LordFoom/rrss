@@ -1101,6 +1101,7 @@ dependencies = [
  "anyhow",
  "clap",
  "colored",
+ "crossterm",
  "log",
  "log4rs",
  "ratatui",
