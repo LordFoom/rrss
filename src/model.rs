@@ -1,5 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+pub struct App {
+    pub channels: Vec<Channel>,
+}
+
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rss {
