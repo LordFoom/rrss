@@ -31,5 +31,6 @@ pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
     let sidebar = Layout::vertical([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let content = Layout::horizontal([Constraint::Fill(1)]);
 
+    //do i return the bits to populate or do i poplate them in here?
     Ok(())
 }
