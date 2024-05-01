@@ -1,7 +1,21 @@
+use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 
 pub struct App {
     pub channels: Vec<Channel>,
+}
+
+pub struct StatefulChannelList {
+    state: ListState,
+    channels: Vec<Channel>,
+    last_selected: Option<usize>,
+}
+
+///Intended to display a channels items in a pane
+pub struct StatefulItemList {
+    state: ListState,
+    items: Vec<Item>,
+    last_selected: Option<usize>,
 }
 
 ///Big rss wrapping tag
