@@ -4,8 +4,9 @@ use clap::Parser;
 use display::display_channel;
 use log::{debug, LevelFilter};
 use log4rs::{
-    append::console::ConsoleAppender,
+    append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Root},
+    encode::pattern::PatternEncoder,
     Config,
 };
 
@@ -21,18 +22,30 @@ struct Args {
     verbose: bool,
 }
 
+///Set up logging to the file, if enabled
 pub fn init_logging(verbose: bool) -> Result<()> {
-    let stdout = ConsoleAppender::builder().build();
+    // let stdout = ConsoleAppender::builder().build();
 
     let lvl_filter = if verbose {
         LevelFilter::Debug
     } else {
-        LevelFilter::Info
+        LevelFilter::Warn
     };
 
+    //TODO make this configurable
+    let file_path = "./rrss.log";
+
+    let log_file = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{d(%Y-%m-%d_%H:%M:%S)(utc)}-{h({l}:{f}>{L}    {m})}\n",
+        )))
+        .build(file_path)?;
+
     let config = Config::builder()
-        .appender(Appender::builder().build("stdout", Box::new(stdout)))
-        .build(Root::builder().appender("stdout").build(lvl_filter))?;
+        // .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .appender(Appender::builder().build("log_file", Box::new(log_file)))
+        // .build(Root::builder().appender("stdout").build(lvl_filter))?;
+        .build(Root::builder().appender("log_file").build(lvl_filter))?;
 
     log4rs::init_config(config)?;
     Ok(())
