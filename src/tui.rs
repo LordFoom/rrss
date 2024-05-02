@@ -3,7 +3,7 @@ use std::io::{self, Stdout};
 use anyhow::{Context, Result};
 use crossterm::{
     execute,
-    terminal::{enable_raw_mode, EnterAlternateScreen},
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{
     backend::CrosstermBackend,
@@ -18,6 +18,13 @@ pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let term = enable_raw_mode().context("Unable to enable raw mode")?;
     execute!(stdout, EnterAlternateScreen).context("Alternate screen switch...FAILED")?;
     Terminal::new(CrosstermBackend::new(stdout)).context("Could not create the terminal")
+}
+
+pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<()> {
+    disable_raw_mode().context("Unable to disable raw mode")?;
+    execute!(term.backend_mut(), LeaveAlternateScreen)
+        .context("Unable to return to main screen")?;
+    term.show_cursor().context("Could not reveal cursor")
 }
 
 ///Sets up the ui and returns the 4 components
