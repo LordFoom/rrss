@@ -6,12 +6,12 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{
-    backend::CrosstermBackend,
+    backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
     Frame, Terminal,
 };
 
-use crate::model::App;
+use crate::model::{App, AppState};
 
 pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let mut stdout = io::stdout();
@@ -25,6 +25,13 @@ pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result
     execute!(term.backend_mut(), LeaveAlternateScreen)
         .context("Unable to return to main screen")?;
     term.show_cursor().context("Could not reveal cursor")
+}
+
+pub fn run_app(term: &mut Terminal<impl Backend>, app: &mut App) {
+    while app.state == AppState::RUNNING {
+
+        //we want to display the channels to start with
+    }
 }
 
 ///Sets up the ui and returns the 4 components

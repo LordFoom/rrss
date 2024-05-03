@@ -1,8 +1,15 @@
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 
+#[derive(PartialEq, Eq)]
+pub enum AppState {
+    RUNNING,
+    STOPPED,
+}
+
 pub struct App {
     pub channels: Vec<Channel>,
+    pub state: AppState,
 }
 
 pub struct StatefulChannelList {

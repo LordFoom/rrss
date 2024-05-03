@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
 use display::display_channel;
@@ -9,6 +9,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
+use tui::{restore_terminal, setup_terminal};
 
 mod api;
 mod display;
@@ -60,6 +61,8 @@ async fn main() -> Result<()> {
 
     init_logging(args.verbose)?;
 
+    let mut term = setup_terminal().context("Failed to setup terminal")?;
+
     for url in args.urls {
         if let Some(channel) = fetch_rss_feed(&url).await? {
             display_channel(&channel);
@@ -77,5 +80,6 @@ async fn main() -> Result<()> {
     //     .non_contiguous_seq_elements(true);
     // let rss = Rss::deserialize(&mut de).unwrap();
     // println!("Rss: {:?}", rss);
+    restore_terminal(&mut term).context("Failed to restore terminal")?;
     Ok(())
 }
