@@ -8,14 +8,14 @@ pub enum AppState {
 }
 
 pub struct App {
-    pub channels: Vec<Channel>,
+    pub channels: StatefulChannelList,
     pub state: AppState,
 }
 
 pub struct StatefulChannelList {
-    state: ListState,
-    channels: Vec<Channel>,
-    last_selected: Option<usize>,
+    pub state: ListState,
+    pub channels: Vec<Channel>,
+    pub last_selected: Option<usize>,
 }
 
 ///Intended to display a channels items in a pane

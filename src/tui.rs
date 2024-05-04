@@ -8,10 +8,19 @@ use crossterm::{
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
+    prelude::*,
+    style::palette::tailwind,
+    widgets::{Block, Borders},
     Frame, Terminal,
 };
 
 use crate::model::{App, AppState};
+
+const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
+const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
+const ALT_ROW_COLOR: Color = tailwind::SLATE.c900;
+const SELECTED_STYLE_FG: Color = tailwind::BLUE.c300;
+const TEXT_COLOR: Color = tailwind::SLATE.c200;
 
 pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let mut stdout = io::stdout();
@@ -28,10 +37,7 @@ pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result
 }
 
 pub fn run_app(term: &mut Terminal<impl Backend>, app: &mut App) {
-    while app.state == AppState::RUNNING {
-
-        //we want to display the channels to start with
-    }
+    while app.state == AppState::RUNNING {}
 }
 
 ///Sets up the ui and returns the 4 components
@@ -44,6 +50,10 @@ pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
     let horizontal = Layout::horizontal([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let sidebar = Layout::vertical([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let content = Layout::horizontal([Constraint::Fill(1)]);
+
+    let channel_pane = Block::new().title("Channels").borders(Borders::all());
+
+    frame.render_stateful_widget(widget, sidebar, app.);
 
     //do i return the bits to populate or do i poplate them in here?
     Ok(())

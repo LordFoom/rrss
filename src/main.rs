@@ -4,7 +4,7 @@ use clap::Parser;
 use display::display_channel;
 use log::{debug, LevelFilter};
 use log4rs::{
-    append::{console::ConsoleAppender, file::FileAppender},
+    append::file::FileAppender,
     config::{Appender, Root},
     encode::pattern::PatternEncoder,
     Config,
