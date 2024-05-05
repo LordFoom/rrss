@@ -8,7 +8,7 @@ pub enum AppState {
 }
 
 pub struct App {
-    pub channels: StatefulChannelList,
+    pub channels: Option<StatefulChannelList>,
     pub state: AppState,
 }
 
