@@ -51,14 +51,14 @@ pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
     let sidebar = Layout::vertical([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let content = Layout::horizontal([Constraint::Fill(1)]);
 
-    let [top,bottom] = vertical.areas(frame.size());
-    let [left,right] = horizontal.areas(bottom);
+    let [top, bottom] = vertical.areas(frame.size());
+    let [left, right] = horizontal.areas(bottom);
     let [channel_pane, item_pane] = sidebar.areas(left);
     let content_pane = content.areas(item_pane);
     let channel_block = Block::new().title("Channels").borders(Borders::all());
 
-    if Some(channels) = app.maybe_channels {
-        frame.render_stateful_widget(channels, sidebar, app.);
+    if let Some(channels) = app.maybe_channels {
+        channel_block.render_stateful_widget(channels, sidebar, channels.state);
     }
     //do i return the bits to populate or do i poplate them in here?
     Ok(())
