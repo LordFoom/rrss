@@ -10,7 +10,7 @@ use ratatui::{
     layout::{Constraint, Layout},
     prelude::*,
     style::palette::tailwind,
-    widgets::{Block, Borders},
+    widgets::{Block, Borders, List, ListItem},
     Frame, Terminal,
 };
 
@@ -58,6 +58,12 @@ pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
     let channel_block = Block::new().title("Channels").borders(Borders::all());
 
     if let Some(channels) = app.maybe_channels {
+        let channel_items: Vec<ListItem> = channels
+            .channels
+            .iter()
+            .map(|chnl| ListItem::new(chnl.title))
+            .collect();
+
         channel_block.render_stateful_widget(channels, sidebar, channels.state);
     }
     //do i return the bits to populate or do i poplate them in here?
