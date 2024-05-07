@@ -8,8 +8,22 @@ pub enum AppState {
 }
 
 pub struct App {
-    pub maybe_channels: Option<StatefulChannelList>,
+    pub channels: StatefulChannelList,
     pub state: AppState,
+}
+
+impl App {
+    pub fn from(channels_vec: Vec<Channel>) -> Self {
+        let channels = StatefulChannelList {
+            state: ListState::default().with_offset(0),
+            channels: channels_vec,
+            last_selected: None,
+        };
+        Self {
+            channels,
+            state: AppState::RUNNING,
+        }
+    }
 }
 
 pub struct StatefulChannelList {

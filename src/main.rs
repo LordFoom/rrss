@@ -63,9 +63,11 @@ async fn main() -> Result<()> {
 
     let mut term = setup_terminal().context("Failed to setup terminal")?;
 
+    let mut channels = Vec::new();
     for url in args.urls {
         if let Some(channel) = fetch_rss_feed(&url).await? {
-            display_channel(&channel);
+            channels.push(channel);
+            // display_channel(&channel);
         } else {
             debug!("No rss channel found...");
         }

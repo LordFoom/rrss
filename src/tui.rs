@@ -45,7 +45,7 @@ pub fn run_app(term: &mut Terminal<impl Backend>, app: &mut App) {
 ///Main area which has left bar and main concat_idents!(
 ///left bar has channel and below it items
 ///)
-pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
+pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let vertical = Layout::vertical([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)]);
     let horizontal = Layout::horizontal([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let sidebar = Layout::vertical([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
@@ -54,18 +54,26 @@ pub fn ui(frame: &mut Frame, app: &App) -> Result<()> {
     let [top, bottom] = vertical.areas(frame.size());
     let [left, right] = horizontal.areas(bottom);
     let [channel_pane, item_pane] = sidebar.areas(left);
-    let content_pane = content.areas(item_pane);
+    let [content_pane] = content.areas(item_pane);
     let channel_block = Block::new().title("Channels").borders(Borders::all());
 
-    if let Some(channels) = app.maybe_channels {
-        let channel_items: Vec<ListItem> = channels
-            .channels
-            .iter()
-            .map(|chnl| ListItem::new(chnl.title))
-            .collect();
+    let channel_items: Vec<ListItem> = app
+        .channels
+        .channels
+        .iter()
+        .map(|chnl| ListItem::new(chnl.title.clone()))
+        .collect();
 
-        channel_block.render_stateful_widget(channels, sidebar, channels.state);
-    }
+    let channel_list = List::new(channel_items)
+        .block(channel_block)
+        .highlight_symbol(">")
+        .highlight_style(
+            Style::default()
+                .bg(Color::Yellow)
+                .fg(Color::Black)
+                .add_modifier(Modifier::BOLD),
+        );
+    frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
     //do i return the bits to populate or do i poplate them in here?
     Ok(())
 }
