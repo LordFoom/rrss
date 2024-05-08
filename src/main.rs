@@ -95,7 +95,7 @@ async fn main() -> Result<()> {
 ///Run run run the app merrily down the bitstream
 fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
     loop {
-        term.draw(|f| ui(f, app).expect("Could not draw the ui"));
+        term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
         if let Event::Key(key) = event::read()? {
             if key.code == KeyCode::Char('q') {
                 return Ok(());
