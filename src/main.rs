@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
+use crossterm::event::{self, Event, KeyCode};
 use display::display_channel;
 use log::{debug, LevelFilter};
 use log4rs::{
@@ -9,7 +10,9 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
-use tui::{restore_terminal, setup_terminal};
+use model::App;
+use ratatui::{backend::Backend, Terminal};
+use tui::{restore_terminal, setup_terminal, ui};
 
 mod api;
 mod display;
@@ -72,6 +75,9 @@ async fn main() -> Result<()> {
             debug!("No rss channel found...");
         }
     }
+
+    let mut app = App::from(channels);
+    run_app(&mut term, &mut app)?;
     // let result = reqwest::get(url).await?;
     // println!("{:?}", result);
     // let txt = result.text().await?;
@@ -84,4 +90,16 @@ async fn main() -> Result<()> {
     // println!("Rss: {:?}", rss);
     restore_terminal(&mut term).context("Failed to restore terminal")?;
     Ok(())
+}
+
+///Run run run the app merrily down the bitstream
+fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    loop {
+        term.draw(|f| ui(f, app).expect("Could not draw the ui"));
+        if let Event::Key(key) = event::read()? {
+            if key.code == KeyCode::Char('q') {
+                return Ok(());
+            }
+        }
+    }
 }
