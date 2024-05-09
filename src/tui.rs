@@ -44,7 +44,7 @@ pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result
 ///left bar has channel and below it items
 ///)
 pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
-    let vertical = Layout::vertical([Constraint::Ratio(1, 3), Constraint::Ratio(2, 3)]);
+    let vertical = Layout::vertical([Constraint::Ratio(1, 8), Constraint::Ratio(7, 8)]);
     let horizontal = Layout::horizontal([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let sidebar = Layout::vertical([Constraint::Ratio(1, 5), Constraint::Ratio(4, 5)]);
     let content = Layout::horizontal([Constraint::Fill(1)]);
@@ -54,9 +54,11 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let [channel_pane, item_pane] = sidebar.areas(left);
     let [content_pane] = content.areas(item_pane);
 
-    let header_block = Block::new().title("RRSS").borders(Borders::ALL);
-    // .border_type(ratatui::widgets::BorderType::Double)
-    // .style(Style::default().fg(Color::Cyan));
+    let header_block = Block::new()
+        .title("RRSS")
+        .borders(Borders::ALL)
+        .border_type(ratatui::widgets::BorderType::Double)
+        .style(Style::default().fg(Color::Cyan));
 
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
