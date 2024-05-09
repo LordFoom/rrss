@@ -2,8 +2,7 @@ use std::io::{self, Stdout};
 
 use anyhow::{Context, Result};
 use crossterm::{
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    event::EnableMouseCapture, execute, terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}
 };
 use ratatui::{
     backend::{Backend, CrosstermBackend},
@@ -25,7 +24,7 @@ const TEXT_COLOR: Color = tailwind::SLATE.c200;
 pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let mut stdout = io::stdout();
     let term = enable_raw_mode().context("Unable to enable raw mode")?;
-    execute!(stdout, EnterAlternateScreen).context("Alternate screen switch...FAILED")?;
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture).context("Alternate screen switch...FAILED")?;
     Terminal::new(CrosstermBackend::new(stdout)).context("Could not create the terminal")
 }
 
@@ -55,7 +54,12 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let [left, right] = horizontal.areas(bottom);
     let [channel_pane, item_pane] = sidebar.areas(left);
     let [content_pane] = content.areas(item_pane);
-    let channel_block = Block::new().title("Channels").borders(Borders::all());
+
+
+    let header_block
+
+    let channel_block = Block::new().title("Channels").borders(Borders::all())
+    .style();
 
     let channel_items: Vec<ListItem> = app
         .channels
