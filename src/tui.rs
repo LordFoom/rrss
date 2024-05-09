@@ -38,10 +38,6 @@ pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result
     term.show_cursor().context("Could not reveal cursor")
 }
 
-pub fn run_app(term: &mut Terminal<impl Backend>, app: &mut App) {
-    while app.state == AppState::RUNNING {}
-}
-
 ///Sets up the ui and returns the 4 components
 ///Top bar
 ///Main area which has left bar and main concat_idents!(
