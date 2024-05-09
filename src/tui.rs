@@ -1,7 +1,6 @@
 use std::io::{self, Stdout};
 
 use anyhow::{Context, Result};
-use color_eyre::owo_colors::OwoColorize;
 use crossterm::{
     event::EnableMouseCapture,
     execute,
@@ -12,7 +11,7 @@ use ratatui::{
     layout::{Constraint, Layout},
     prelude::*,
     style::palette::tailwind,
-    widgets::{Block, Borders, List, ListItem},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame, Terminal,
 };
 
@@ -59,8 +58,12 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let [channel_pane, item_pane] = sidebar.areas(left);
     let [content_pane] = content.areas(item_pane);
 
-    // let header_block
+    let header_block = Block::new().title("RRSS").borders(Borders::ALL);
+    // .border_type(ratatui::widgets::BorderType::Double)
+    // .style(Style::default().fg(Color::Cyan));
 
+    let header = Paragraph::new("RRSS rss reader").block(header_block);
+    frame.render_widget(header, top);
     let channel_block = Block::new()
         .title("Channels")
         .borders(Borders::all())
