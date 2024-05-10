@@ -62,10 +62,19 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
+
     let channel_block = Block::new()
         .title("Channels")
         .borders(Borders::all())
         .style(Style::default().fg(Color::Yellow));
+
+    let item_block = Block::new()
+        .title("Items")
+        .borders(Borders::ALL)
+        .style(Style::default().fg(Color::Yellow));
+    //TODO here we gonna stick in the items we got oh yeah
+    let item = Paragraph::new("We are items").block(item_block);
+    frame.render_widget(item, item_pane);
 
     let channel_items: Vec<ListItem> = app
         .channels
