@@ -11,7 +11,7 @@ use ratatui::{
     layout::{Constraint, Layout},
     prelude::*,
     style::palette::tailwind,
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph},
     Frame, Terminal,
 };
 
@@ -52,13 +52,13 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let [top, bottom] = vertical.areas(frame.size());
     let [left, right] = horizontal.areas(bottom);
     let [channel_pane, item_pane] = sidebar.areas(left);
-    let [content_pane] = content.areas(item_pane);
+    let [content_pane] = content.areas(right);
 
     let header_block = Block::new()
         .title("RRSS")
         .borders(Borders::ALL)
         .border_type(ratatui::widgets::BorderType::Double)
-        .style(Style::default().fg(Color::Cyan));
+        .style(Style::default().fg(Color::DarkGray));
 
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
@@ -68,14 +68,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .borders(Borders::all())
         .style(Style::default().fg(Color::Yellow));
 
-    let item_block = Block::new()
-        .title("Items")
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Yellow));
-    //TODO here we gonna stick in the items we got oh yeah
-    let item = Paragraph::new("We are items").block(item_block);
-    frame.render_widget(item, item_pane);
-
+    //channel
     let channel_items: Vec<ListItem> = app
         .channels
         .channels
@@ -93,6 +86,26 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
                 .add_modifier(Modifier::BOLD),
         );
     frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
-    //do i return the bits to populate or do i poplate them in here?
+    //items
+
+    let items_block = Block::new()
+        .title("Items")
+        .borders(Borders::ALL)
+        .style(Style::default().fg(Color::Yellow));
+    //TODO here we gonna stick in the items we got oh yeah
+    let item = Paragraph::new("We are items").block(items_block);
+    frame.render_widget(item, item_pane);
+
+    //item content
+    //
+    //
+    let view_block = Block::new()
+        .title("Content")
+        .borders(Borders::all())
+        .border_type(BorderType::Thick)
+        .style(Style::default().fg(Color::Cyan));
+    let item_content = Paragraph::new("The content lorem dorem ipsum galactum").block(view_block);
+    frame.render_widget(item_content, content_pane);
+
     Ok(())
 }
