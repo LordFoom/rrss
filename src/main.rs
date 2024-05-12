@@ -58,6 +58,11 @@ pub fn init_logging(verbose: bool) -> Result<()> {
 //TODO Do multiple file urls from cli
 //TODO Allow url in config file
 //TODO make a tui
+//TODO select pane in tui - thick border
+//TODO select channel functionality
+//TODO populate items from channel selection
+//TODO select item functionality
+//TODO display item
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
