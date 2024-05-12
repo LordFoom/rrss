@@ -66,30 +66,6 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
 
-    // let channel_block = Block::new()
-    //     .title("Channels")
-    //     .borders(Borders::all())
-    //     .style(Style::default().fg(Color::Yellow));
-    //
-    // //channel
-    // let channel_items: Vec<ListItem> = app
-    //     .channels
-    //     .channels
-    //     .iter()
-    //     .map(|chnl| ListItem::new(chnl.title.clone()))
-    //     .collect();
-    //
-    // let channel_list = List::new(channel_items)
-    //     .block(channel_block)
-    //     .highlight_symbol(">")
-    //     .highlight_style(
-    //         Style::default()
-    //             .bg(Color::Yellow)
-    //             .fg(Color::Black)
-    //             .add_modifier(Modifier::BOLD),
-    //     );
-    // frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
-    //items
     display_channels(frame, app, channel_pane)?;
 
     let items_block = Block::new()
