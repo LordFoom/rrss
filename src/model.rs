@@ -39,7 +39,15 @@ pub struct StatefulItemList {
     pub last_selected: Option<usize>,
 }
 
-impl StatefulItemList {}
+impl StatefulItemList {
+    pub fn from_channel(channel: &Channel) -> Self {
+        Self {
+            state: ListState::default().with_offset(0),
+            items: channel.items.clone(),
+            last_selected: None,
+        }
+    }
+}
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rss {
@@ -61,7 +69,7 @@ pub struct Channel {
 }
 
 ///News items in the channel
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Item {
     // pub title: String,
     // pub link: String,
