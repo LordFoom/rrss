@@ -15,7 +15,10 @@ use ratatui::{
     Frame, Terminal,
 };
 
-use crate::model::{App, AppState};
+use crate::{
+    display::display_channel,
+    model::{App, AppState},
+};
 
 const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
 const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
@@ -63,6 +66,55 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
 
+    // let channel_block = Block::new()
+    //     .title("Channels")
+    //     .borders(Borders::all())
+    //     .style(Style::default().fg(Color::Yellow));
+    //
+    // //channel
+    // let channel_items: Vec<ListItem> = app
+    //     .channels
+    //     .channels
+    //     .iter()
+    //     .map(|chnl| ListItem::new(chnl.title.clone()))
+    //     .collect();
+    //
+    // let channel_list = List::new(channel_items)
+    //     .block(channel_block)
+    //     .highlight_symbol(">")
+    //     .highlight_style(
+    //         Style::default()
+    //             .bg(Color::Yellow)
+    //             .fg(Color::Black)
+    //             .add_modifier(Modifier::BOLD),
+    //     );
+    // frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
+    //items
+    display_channels(frame, app, channel_pane)?;
+
+    let items_block = Block::new()
+        .title("Items")
+        .borders(Borders::ALL)
+        .style(Style::default().fg(Color::Yellow));
+    //TODO here we gonna stick in the items we got oh yeah
+    let item = Paragraph::new("We are items").block(items_block);
+    frame.render_widget(item, item_pane);
+
+    //item content
+    //
+    //
+    let view_block = Block::new()
+        .title("Content")
+        .borders(Borders::all())
+        .border_type(BorderType::Thick)
+        .style(Style::default().fg(Color::Cyan));
+    let item_content = Paragraph::new("The content lorem dorem ipsum galactum").block(view_block);
+    frame.render_widget(item_content, content_pane);
+
+    Ok(())
+}
+
+fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Result<()> {
     let channel_block = Block::new()
         .title("Channels")
         .borders(Borders::all())
@@ -86,26 +138,5 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
                 .add_modifier(Modifier::BOLD),
         );
     frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
-    //items
-
-    let items_block = Block::new()
-        .title("Items")
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Yellow));
-    //TODO here we gonna stick in the items we got oh yeah
-    let item = Paragraph::new("We are items").block(items_block);
-    frame.render_widget(item, item_pane);
-
-    //item content
-    //
-    //
-    let view_block = Block::new()
-        .title("Content")
-        .borders(Borders::all())
-        .border_type(BorderType::Thick)
-        .style(Style::default().fg(Color::Cyan));
-    let item_content = Paragraph::new("The content lorem dorem ipsum galactum").block(view_block);
-    frame.render_widget(item_content, content_pane);
-
     Ok(())
 }
