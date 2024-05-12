@@ -34,11 +34,12 @@ pub struct StatefulChannelList {
 
 ///Intended to display a channels items in a pane
 pub struct StatefulItemList {
-    state: ListState,
-    items: Vec<Item>,
-    last_selected: Option<usize>,
+    pub state: ListState,
+    pub items: Vec<Item>,
+    pub last_selected: Option<usize>,
 }
 
+impl StatefulItemList {}
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rss {
