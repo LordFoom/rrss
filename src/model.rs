@@ -40,7 +40,7 @@ pub struct StatefulItemList {
 }
 
 impl StatefulItemList {
-    pub fn from_channel(channel: &Channel) -> Self {
+    pub fn from(channel: &Channel) -> Self {
         Self {
             state: ListState::default().with_offset(0),
             items: channel.items.clone(),
