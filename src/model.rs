@@ -24,6 +24,13 @@ impl App {
             state: AppState::RUNNING,
         }
     }
+
+    pub fn get_selected_channel(&self) -> Option<&Channel> {
+        if let Some(idx) = self.channels.state.selected() {
+            return self.channels.channels.get(idx);
+        }
+        None
+    }
 }
 
 pub struct StatefulChannelList {

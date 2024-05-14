@@ -73,17 +73,16 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::Yellow));
     //TODO here we gonna stick in the items we got oh yeah
-    let item_list = if let Some(channel) = app.get_selected_channl() {
-
+    let item_list = if let Some(channel) = app.get_selected_channel() {
+        let li = ["We are to be replaced with actual items"];
+        List::new(li).block(items_block)
     } else {
-        let li = ListItem::from("We are items");
-        List::new(&[li])
-            .block(items_block)
+        let li = ["We are default items"];
+        List::new(li).block(items_block)
+    };
+    // let item = List::new("We are items").block(items_block);
 
-    }
-    let item = List::new("We are items").block(items_block);
-
-    frame.render_stateful_widget(item_list, item_pane, app.channels.state);
+    frame.render_stateful_widget(item_list, item_pane, &mut app.channels.state);
 
     //item content
     //
