@@ -93,7 +93,7 @@ pub struct Item {
 
 impl Item {
     pub fn get_title(&self) -> String {
-        if let Some(titles) = self.title {
+        if let Some(titles) = &self.title {
             if let Some(title) = titles.get(0) {
                 return title.clone();
             }

@@ -74,14 +74,13 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .style(Style::default().fg(Color::Yellow));
     //TODO here we gonna stick in the items we got oh yeah
     let item_list = if let Some(channel) = app.get_selected_channel() {
-        let items = channel
+        let items: Vec<ListItem> = channel
             .items
             .clone()
             .iter()
-            .map(|item| ListItem::new(item.title))
+            .map(|item| ListItem::new(item.get_title()))
             .collect();
-        let li = ["We are to be replaced with actual items"];
-        List::new(li).block(items_block)
+        List::new(items).block(items_block)
     } else {
         let li = ["We are default items"];
         List::new(li).block(items_block)
