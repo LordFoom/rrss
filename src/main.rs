@@ -10,7 +10,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
-use model::App;
+use model::{App, AppState};
 use ratatui::{backend::Backend, Terminal};
 use tui::{restore_terminal, setup_terminal, ui};
 
@@ -103,8 +103,12 @@ fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
         term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
         if let Event::Key(key) = event::read()? {
             if key.code == KeyCode::Char('q') {
-                return Ok(());
+                app.state = AppState::STOPPED;
+                // return Ok(());
             }
+        }
+        if app.state == AppState::STOPPED {
+            return Ok(());
         }
     }
 }
