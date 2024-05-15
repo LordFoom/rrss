@@ -103,11 +103,11 @@ fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
         term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
         if let Event::Key(key) = event::read()? {
             if key.code == KeyCode::Char('q') {
-                app.state = AppState::STOPPED;
+                app.state = AppState::Stopped;
                 // return Ok(());
             }
         }
-        if app.state == AppState::STOPPED {
+        if app.state == AppState::Stopped {
             return Ok(());
         }
     }

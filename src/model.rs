@@ -3,12 +3,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Eq)]
 pub enum AppState {
-    RUNNING,
-    STOPPED,
+    Running,
+    Stopped,
 }
 
 pub struct App {
     pub channels: StatefulChannelList,
+    pub current_items: Option<StatefulChannelList>,
     pub state: AppState,
 }
 
@@ -21,7 +22,8 @@ impl App {
         };
         Self {
             channels,
-            state: AppState::RUNNING,
+            current_items: None,
+            state: AppState::Running,
         }
     }
 
@@ -87,6 +89,17 @@ pub struct Item {
     pub enclosure: Option<Enclosure>,
     #[serde(rename = "pubDate")]
     pub pub_date: Option<String>,
+}
+
+impl Item {
+    pub fn get_title(&self) -> String {
+        if let Some(titles) = self.title {
+            if let Some(title) = titles.get(0) {
+                return title.clone();
+            }
+        }
+        String::from("None")
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
