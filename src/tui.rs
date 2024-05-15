@@ -28,7 +28,7 @@ const TEXT_COLOR: Color = tailwind::SLATE.c200;
 
 pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let mut stdout = io::stdout();
-    let term = enable_raw_mode().context("Unable to enable raw mode")?;
+    enable_raw_mode().context("Unable to enable raw mode")?;
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)
         .context("Alternate screen switch...FAILED")?;
     Terminal::new(CrosstermBackend::new(stdout)).context("Could not create the terminal")
@@ -74,6 +74,12 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .style(Style::default().fg(Color::Yellow));
     //TODO here we gonna stick in the items we got oh yeah
     let item_list = if let Some(channel) = app.get_selected_channel() {
+        let items = channel
+            .items
+            .clone()
+            .iter()
+            .map(|item| ListItem::new(item.title))
+            .collect();
         let li = ["We are to be replaced with actual items"];
         List::new(li).block(items_block)
     } else {
