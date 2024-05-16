@@ -1,6 +1,9 @@
+use core::panicking::panic;
+
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
+use color_eyre::config::HookBuilder;
 use crossterm::event::{self, Event, KeyCode};
 use display::display_channel;
 use log::{debug, LevelFilter};
@@ -55,6 +58,27 @@ pub fn init_logging(verbose: bool) -> Result<()> {
     Ok(())
 }
 
+fn init_error_hooks() -> Result<()> {
+    let (panic, error) = HookBuilder::default().into_hooks();
+    let panic = panic.into_panic_hook();
+    let error = error.into_eyre_hook();
+    color_eyre::eyre::set_hook(Box::new(move |e| {
+        if let Err(err) = restore_terminal() {
+            eprintln!("Unable to restore terminal");
+        }
+        error(e)
+    }))?;
+
+    std::panic::set_hook(Box::new(move |info| {
+        if let Err(err) = restore_terminal() {
+            eprintln!("Unable to restore terminal");
+        }
+        panic(info)
+    }));
+
+    Ok(())
+}
+
 //TODO Do multiple file urls from cli
 //TODO Allow url in config file
 //TODO make a tui
@@ -66,6 +90,8 @@ pub fn init_logging(verbose: bool) -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
+
+    init_error_hooks()?;
 
     init_logging(args.verbose)?;
 
@@ -93,7 +119,8 @@ async fn main() -> Result<()> {
     //     .non_contiguous_seq_elements(true);
     // let rss = Rss::deserialize(&mut de).unwrap();
     // println!("Rss: {:?}", rss);
-    restore_terminal(&mut term).context("Failed to restore terminal")?;
+    // restore_terminal(&mut term).context("Failed to restore terminal")?;
+    restore_terminal().context("Failed to restore terminal")?;
     Ok(())
 }
 

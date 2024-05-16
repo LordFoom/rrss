@@ -1,10 +1,11 @@
-use std::io::{self, Stdout};
+use std::io::{self, stdout, Stdout};
 
 use anyhow::{Context, Result};
 use crossterm::{
     event::EnableMouseCapture,
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
 };
 use ratatui::{
     backend::{Backend, CrosstermBackend},
@@ -34,11 +35,13 @@ pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     Terminal::new(CrosstermBackend::new(stdout)).context("Could not create the terminal")
 }
 
-pub fn restore_terminal(term: &mut Terminal<CrosstermBackend<Stdout>>) -> Result<()> {
+pub fn restore_terminal() -> Result<()> {
     disable_raw_mode().context("Unable to disable raw mode")?;
-    execute!(term.backend_mut(), LeaveAlternateScreen)
-        .context("Unable to return to main screen")?;
-    term.show_cursor().context("Could not reveal cursor")
+    stdout().execute(LeaveAlternateScreen)?;
+    // execute!(term.backend_mut(), LeaveAlternateScreen)
+    //     .context("Unable to return to main screen")?;
+    // term.show_cursor().context("Could not reveal cursor")
+    Ok(())
 }
 
 ///Sets up the ui and returns the 4 components
