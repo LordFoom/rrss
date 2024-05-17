@@ -33,6 +33,27 @@ impl App {
         }
         None
     }
+
+    ///Graphically upwards from the current position
+    ///If nothing selected, will select the last item
+    pub fn channel_select_up(&mut self) {
+        let channel_len = self.num_channels();
+        let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
+            if chnl_idx == 0 {
+                //loop around
+                channel_len - 1
+            } else {
+                chnl_idx - 1
+            }
+        } else {
+            channel_len - 1
+        };
+        let _ = self.channels.state.select(Some(select_idx));
+    }
+
+    pub fn num_channels(&self) -> usize {
+        self.channels.channels.len()
+    }
 }
 
 pub struct StatefulChannelList {

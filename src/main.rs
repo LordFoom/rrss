@@ -1,11 +1,8 @@
-use core::panicking::panic;
-
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use crossterm::event::{self, Event, KeyCode};
-use display::display_channel;
 use log::{debug, LevelFilter};
 use log4rs::{
     append::file::FileAppender,
