@@ -51,6 +51,22 @@ impl App {
         let _ = self.channels.state.select(Some(select_idx));
     }
 
+    ///Graphically upwards from the current position
+    ///If nothing selected, will select the first item
+    pub fn channel_select_down(&mut self) {
+        let channel_len = self.num_channels();
+        let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
+            if chnl_idx == channel_len - 1 {
+                //loop around
+                0
+            } else {
+                chnl_idx + 1
+            }
+        } else {
+            0
+        };
+        let _ = self.channels.state.select(Some(select_idx));
+    }
     pub fn num_channels(&self) -> usize {
         self.channels.channels.len()
     }
