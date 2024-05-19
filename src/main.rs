@@ -126,9 +126,12 @@ fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
     loop {
         term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
         if let Event::Key(key) = event::read()? {
-            if key.code == KeyCode::Char('q') {
-                app.state = AppState::Stopped;
-                // return Ok(());
+            match key.code {
+                KeyCode::Char('q') | KeyCode::Char('Q') => app.state = AppState::Stopped,
+                //todo differentiate between the different selected states
+                KeyCode::Char('j') | KeyCode::Char('J') => app.channel_select_down(),
+                KeyCode::Char('k') | KeyCode::Char('K') => app.channel_select_up(),
+                _ => {}
             }
         }
         if app.state == AppState::Stopped {

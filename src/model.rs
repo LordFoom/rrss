@@ -67,6 +67,7 @@ impl App {
         };
         let _ = self.channels.state.select(Some(select_idx));
     }
+
     pub fn num_channels(&self) -> usize {
         self.channels.channels.len()
     }
