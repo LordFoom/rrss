@@ -7,10 +7,17 @@ pub enum AppState {
     Stopped,
 }
 
+#[derive(PartialEq)]
+pub enum SelectedPane {
+    Channels,
+    Items,
+}
+
 pub struct App {
     pub channels: StatefulChannelList,
     pub current_items: Option<StatefulChannelList>,
     pub state: AppState,
+    pub selected_pane: SelectedPane,
 }
 
 impl App {
@@ -24,6 +31,7 @@ impl App {
             channels,
             current_items: None,
             state: AppState::Running,
+            selected_pane: SelectedPane::Channels,
         }
     }
 

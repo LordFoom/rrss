@@ -1,8 +1,11 @@
-use std::io::{self, stdout, Stdout};
+use std::{
+    fmt::write,
+    io::{self, stdout, Stdout},
+};
 
 use anyhow::{Context, Result};
 use crossterm::{
-    event::EnableMouseCapture,
+    event::{self, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
@@ -18,7 +21,7 @@ use ratatui::{
 
 use crate::{
     display::display_channel,
-    model::{App, AppState},
+    model::{App, AppState, SelectedPane},
 };
 
 const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
@@ -107,12 +110,18 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 }
 
 fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Result<()> {
+    let bt = if app.selected_pane == SelectedPane::Channels {
+        (BorderType::Thick)
+    } else {
+        (BorderType::Plain)
+    };
+
     let channel_block = Block::new()
         .title("Channels")
         .borders(Borders::all())
+        .border_type(bt)
         .style(Style::default().fg(Color::Yellow));
 
-    //channel
     let channel_items: Vec<ListItem> = app
         .channels
         .channels
@@ -131,4 +140,23 @@ fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Res
         );
     frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
     Ok(())
+}
+
+///Run run run the app merrily down the bitstream
+pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    loop {
+        term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
+        if let Event::Key(key) = event::read()? {
+            match key.code {
+                KeyCode::Char('q') | KeyCode::Char('Q') => app.state = AppState::Stopped,
+                //todo differentiate between the different selected states
+                KeyCode::Char('j') | KeyCode::Char('J') => app.channel_select_down(),
+                KeyCode::Char('k') | KeyCode::Char('K') => app.channel_select_up(),
+                _ => {}
+            }
+        }
+        if app.state == AppState::Stopped {
+            return Ok(());
+        }
+    }
 }

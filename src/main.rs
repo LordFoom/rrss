@@ -12,7 +12,7 @@ use log4rs::{
 };
 use model::{App, AppState};
 use ratatui::{backend::Backend, Terminal};
-use tui::{restore_terminal, setup_terminal, ui};
+use tui::{restore_terminal, run_app, setup_terminal, ui};
 
 mod api;
 mod display;
@@ -96,6 +96,7 @@ async fn main() -> Result<()> {
 
     let mut channels = Vec::new();
     for url in args.urls {
+        //this we should make async, so we can start up and it does it in the background...?
         if let Some(channel) = fetch_rss_feed(&url).await? {
             channels.push(channel);
             // display_channel(&channel);
@@ -119,23 +120,4 @@ async fn main() -> Result<()> {
     // restore_terminal(&mut term).context("Failed to restore terminal")?;
     restore_terminal().context("Failed to restore terminal")?;
     Ok(())
-}
-
-///Run run run the app merrily down the bitstream
-fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
-    loop {
-        term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
-        if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') | KeyCode::Char('Q') => app.state = AppState::Stopped,
-                //todo differentiate between the different selected states
-                KeyCode::Char('j') | KeyCode::Char('J') => app.channel_select_down(),
-                KeyCode::Char('k') | KeyCode::Char('K') => app.channel_select_up(),
-                _ => {}
-            }
-        }
-        if app.state == AppState::Stopped {
-            return Ok(());
-        }
-    }
 }
