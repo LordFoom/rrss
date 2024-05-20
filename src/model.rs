@@ -44,7 +44,7 @@ impl App {
 
     ///Graphically upwards from the current position
     ///If nothing selected, will select the last item
-    pub fn channel_select_up(&mut self) {
+    pub fn select_up(&mut self) {
         let channel_len = self.num_channels();
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
             if chnl_idx == 0 {
@@ -61,7 +61,7 @@ impl App {
 
     ///Graphically upwards from the current position
     ///If nothing selected, will select the first item
-    pub fn channel_select_down(&mut self) {
+    pub fn select_down(&mut self) {
         let channel_len = self.num_channels();
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
             if chnl_idx == channel_len - 1 {
@@ -74,6 +74,13 @@ impl App {
             0
         };
         let _ = self.channels.state.select(Some(select_idx));
+    }
+
+    pub fn change_selected_pane(&mut self) {
+        match self.selected_pane {
+            SelectedPane::Items => self.selected_pane = SelectedPane::Channels,
+            SelectedPane::Channels => self.selected_pane = SelectedPane::Items,
+        }
     }
 
     pub fn num_channels(&self) -> usize {
