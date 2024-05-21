@@ -93,7 +93,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     };
     // let item = List::new("We are items").block(items_block);
 
-    frame.render_stateful_widget(item_list, item_pane, &mut app.channels.state);
+    frame.render_stateful_widget(item_list, item_pane, &mut app.current_items.state);
 
     //item content
     //
@@ -139,6 +139,31 @@ fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Res
                 .add_modifier(Modifier::BOLD),
         );
     frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
+    Ok(())
+}
+
+fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()> {
+    let items_block = Block::new()
+        .title("Items")
+        .borders(Borders::ALL)
+        .style(Style::default().fg(Color::Yellow));
+    //TODO here we gonna stick in the items we got oh yeah
+    let item_list = if let Some(channel) = app.get_selected_channel()
+        && app.dirty_items
+    {
+        let items: Vec<ListItem> = channel
+            .items
+            .clone()
+            .iter()
+            .map(|item| ListItem::new(item.get_title()))
+            .collect();
+        List::new(items).block(items_block)
+    } else {
+        let li = ["We are default items"];
+        List::new(li).block(items_block)
+    };
+
+    frame.render_stateful_widget(item_list, item_pane, &mut app.current_items.state);
     Ok(())
 }
 

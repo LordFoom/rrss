@@ -15,9 +15,10 @@ pub enum SelectedPane {
 
 pub struct App {
     pub channels: StatefulChannelList,
-    pub current_items: Option<StatefulChannelList>,
+    pub current_items: StatefulChannelList,
     pub state: AppState,
     pub selected_pane: SelectedPane,
+    pub construct_items: bool,
 }
 
 impl App {
@@ -29,9 +30,10 @@ impl App {
         };
         Self {
             channels,
-            current_items: None,
+            current_items: StatefulChannelList::default(),
             state: AppState::Running,
             selected_pane: SelectedPane::Channels,
+            construct_items: true,
         }
     }
 
@@ -106,6 +108,16 @@ impl StatefulItemList {
         Self {
             state: ListState::default().with_offset(0),
             items: channel.items.clone(),
+            last_selected: None,
+        }
+    }
+}
+
+impl Default for StatefulItemList {
+    fn default() -> Self {
+        Self {
+            state: ListState::default(),
+            items: Vec::new(),
             last_selected: None,
         }
     }
