@@ -74,30 +74,8 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 
     display_channels(frame, app, channel_pane)?;
 
-    let items_block = Block::new()
-        .title("Items")
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::Yellow));
-    //TODO here we gonna stick in the items we got oh yeah
-    let item_list = if let Some(channel) = app.get_selected_channel() {
-        let items: Vec<ListItem> = channel
-            .items
-            .clone()
-            .iter()
-            .map(|item| ListItem::new(item.get_title()))
-            .collect();
-        List::new(items).block(items_block)
-    } else {
-        let li = ["We are default items"];
-        List::new(li).block(items_block)
-    };
-    // let item = List::new("We are items").block(items_block);
+    display_items(frame, app, item_pane)?;
 
-    frame.render_stateful_widget(item_list, item_pane, &mut app.current_items.state);
-
-    //item content
-    //
-    //
     let view_block = Block::new()
         .title("Content")
         .borders(Borders::all())
@@ -109,12 +87,9 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     Ok(())
 }
 
+///Show the channels we are monitoring in their pane
 fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Result<()> {
-    let bt = if app.selected_pane == SelectedPane::Channels {
-        (BorderType::Thick)
-    } else {
-        (BorderType::Plain)
-    };
+    let bt = get_border_type(app.selected_pane == SelectedPane::Channels);
 
     let channel_block = Block::new()
         .title("Channels")
@@ -142,15 +117,26 @@ fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Res
     Ok(())
 }
 
+fn get_border_type(selected: bool) -> BorderType {
+    if selected {
+        BorderType::Thick
+    } else {
+        BorderType::Plain
+    }
+}
+
 fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()> {
+    let bt = get_border_type(app.selected_pane == SelectedPane::Items);
     let items_block = Block::new()
         .title("Items")
         .borders(Borders::ALL)
+        .border_type(bt)
         .style(Style::default().fg(Color::Yellow));
     //TODO here we gonna stick in the items we got oh yeah
-    let item_list = if let Some(channel) = app.get_selected_channel()
-        && app.dirty_items
-    {
+    let item_list = if let Some(channel) = app.get_selected_channel() {
+        if app.construct_items {
+            //TODO here we can do a fetch
+        }
         let items: Vec<ListItem> = channel
             .items
             .clone()

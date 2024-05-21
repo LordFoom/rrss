@@ -15,7 +15,7 @@ pub enum SelectedPane {
 
 pub struct App {
     pub channels: StatefulChannelList,
-    pub current_items: StatefulChannelList,
+    pub current_items: StatefulItemList,
     pub state: AppState,
     pub selected_pane: SelectedPane,
     pub construct_items: bool,
@@ -30,7 +30,7 @@ impl App {
         };
         Self {
             channels,
-            current_items: StatefulChannelList::default(),
+            current_items: StatefulItemList::default(),
             state: AppState::Running,
             selected_pane: SelectedPane::Channels,
             construct_items: true,
