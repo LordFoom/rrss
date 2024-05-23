@@ -125,6 +125,7 @@ fn get_border_type(selected: bool) -> BorderType {
     }
 }
 
+///Display the items for the selected channel in their pane
 fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()> {
     let bt = get_border_type(app.selected_pane == SelectedPane::Items);
     let items_block = Block::new()

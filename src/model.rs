@@ -47,26 +47,55 @@ impl App {
     ///Graphically upwards from the current position
     ///If nothing selected, will select the last item
     pub fn select_up(&mut self) {
-        let channel_len = self.num_channels();
+        match self.selected_pane {
+            SelectedPane::Channels => self.select_up_channels(),
+            SelectedPane::Items => self.select_up_items(),
+        }
+    }
+
+    pub fn select_up_channels(&mut self) {
+        let channels_len = self.num_channels();
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
             if chnl_idx == 0 {
                 //loop around
-                channel_len - 1
+                channels_len - 1
             } else {
                 chnl_idx - 1
             }
         } else {
-            channel_len - 1
+            channels_len - 1
         };
         let _ = self.channels.state.select(Some(select_idx));
+    }
+
+    pub fn select_up_items(&mut self) {
+        let items_len = self.num_items();
+        let select_idx = if let Some(item_idx) = self.current_items.state.selected() {
+            if item_idx == 0 {
+                //loop around
+                items_len - 1
+            } else {
+                item_idx - 1
+            }
+        } else {
+            items_len - 1
+        };
+        let _ = self.current_items.state.select(Some(select_idx));
     }
 
     ///Graphically upwards from the current position
     ///If nothing selected, will select the first item
     pub fn select_down(&mut self) {
-        let channel_len = self.num_channels();
+        match self.selected_pane {
+            SelectedPane::Channels => self.select_down_channels(),
+            SelectedPane::Items => self.select_down_items(),
+        }
+    }
+
+    pub fn select_down_channels(&mut self) {
+        let channels_len = self.num_channels();
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
-            if chnl_idx == channel_len - 1 {
+            if chnl_idx == channels_len - 1 {
                 //loop around
                 0
             } else {
@@ -78,6 +107,21 @@ impl App {
         let _ = self.channels.state.select(Some(select_idx));
     }
 
+    pub fn select_down_items(&mut self) {
+        let items_len = self.num_items();
+        let select_idx = if let Some(item_idx) = self.current_items.state.selected() {
+            if item_idx == items_len - 1 {
+                //loop around
+                0
+            } else {
+                item_idx + 1
+            }
+        } else {
+            0
+        };
+        let _ = self.current_items.state.select(Some(select_idx));
+    }
+
     pub fn change_selected_pane(&mut self) {
         match self.selected_pane {
             SelectedPane::Items => self.selected_pane = SelectedPane::Channels,
@@ -87,6 +131,10 @@ impl App {
 
     pub fn num_channels(&self) -> usize {
         self.channels.channels.len()
+    }
+
+    pub fn num_items(&self) -> usize {
+        self.current_items.items.len()
     }
 }
 
