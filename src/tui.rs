@@ -162,8 +162,8 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
             match key.code {
                 KeyCode::Char('q') | KeyCode::Char('Q') => app.state = AppState::Stopped,
                 //todo differentiate between the different selected states
-                KeyCode::Char('j') | KeyCode::Char('J') => app.select_down(),
-                KeyCode::Char('k') | KeyCode::Char('K') => app.select_up(),
+                KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
+                KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }
