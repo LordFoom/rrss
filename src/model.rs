@@ -66,6 +66,8 @@ impl App {
             channels_len - 1
         };
         let _ = self.channels.state.select(Some(select_idx));
+        //need to load items
+        self.construct_items = true
     }
 
     pub fn select_up_items(&mut self) {
@@ -105,6 +107,8 @@ impl App {
             0
         };
         let _ = self.channels.state.select(Some(select_idx));
+        //need to load items
+        self.construct_items = true
     }
 
     pub fn select_down_items(&mut self) {

@@ -21,7 +21,7 @@ use ratatui::{
 
 use crate::{
     display::display_channel,
-    model::{App, AppState, SelectedPane},
+    model::{App, AppState, SelectedPane, StatefulItemList},
 };
 
 const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
@@ -109,8 +109,8 @@ fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Res
         .highlight_symbol(">")
         .highlight_style(
             Style::default()
-                .bg(Color::Yellow)
-                .fg(Color::Black)
+                .bg(ALT_ROW_COLOR)
+                .fg(SELECTED_STYLE_FG)
                 .add_modifier(Modifier::BOLD),
         );
     frame.render_stateful_widget(channel_list, channel_pane, &mut app.channels.state);
@@ -137,14 +137,22 @@ fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()
     let item_list = if let Some(channel) = app.get_selected_channel() {
         if app.construct_items {
             //TODO here we can do a fetch
+            app.current_items = StatefulItemList::from(&channel);
+            app.construct_items = false;
         }
-        let items: Vec<ListItem> = channel
+        let items: Vec<ListItem> = app
+            .current_items
             .items
             .clone()
             .iter()
             .map(|item| ListItem::new(item.get_title()))
             .collect();
-        List::new(items).block(items_block)
+        List::new(items).block(items_block).highlight_style(
+            Style::default()
+                .bg(NORMAL_ROW_COLOR)
+                .fg(SELECTED_STYLE_FG)
+                .add_modifier(Modifier::BOLD),
+        )
     } else {
         let li = ["We are default items"];
         List::new(li).block(items_block)
