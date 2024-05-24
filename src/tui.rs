@@ -12,7 +12,7 @@ use ratatui::{
     layout::{Constraint, Layout},
     prelude::*,
     style::palette::tailwind,
-    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph},
+    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Wrap},
     Frame, Terminal,
 };
 
@@ -158,7 +158,9 @@ fn display_selected_item(frame: &mut Frame, text: &str, item_pane: Rect) -> Resu
         .borders(Borders::all())
         .border_type(BorderType::Thick)
         .style(Style::default().fg(Color::Cyan));
-    let item_content = Paragraph::new(text).block(view_block);
+    let item_content = Paragraph::new(text)
+        .wrap(Wrap { trim: true })
+        .block(view_block);
     frame.render_widget(item_content, item_pane);
     Ok(())
 }
