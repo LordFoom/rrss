@@ -126,7 +126,7 @@ fn display_selected_channel_items(frame: &mut Frame, app: &mut App, item_pane: R
     let item_list = if let Some(channel) = app.get_selected_channel() {
         if app.construct_items {
             //TODO here we can do a fetch
-            app.current_items = StatefulItemList::from(&channel);
+            app.current_items = StatefulItemList::from(channel);
             app.construct_items = false;
         }
         let items: Vec<ListItem> = app

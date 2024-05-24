@@ -142,7 +142,7 @@ impl App {
     }
 
     pub fn content_pane_text(&self) -> String {
-        if self.current_items.items.len() == 0 {
+        if self.current_items.items.is_empty() {
             return "Nothing to display".to_string();
         }
 
@@ -153,17 +153,16 @@ impl App {
         };
 
         if let Some(item) = self.current_items.items.get(idx) {
-            return if let Some(description) = item.description.clone() {
+            if let Some(description) = item.description.clone() {
                 description
             } else {
-                return item
-                    .link
+                item.link
                     .clone()
                     .unwrap_or("Nothing to display".to_string())
-                    .to_string();
-            };
+                    .to_string()
+            }
         } else {
-            return "Nothing to display".to_string();
+            "Nothing to display".to_string()
         }
     }
 }
@@ -175,6 +174,7 @@ pub struct StatefulChannelList {
 }
 
 ///Intended to display a channels items in a pane
+#[derive(Default)]
 pub struct StatefulItemList {
     pub state: ListState,
     pub items: Vec<Item>,
@@ -191,15 +191,15 @@ impl StatefulItemList {
     }
 }
 
-impl Default for StatefulItemList {
-    fn default() -> Self {
-        Self {
-            state: ListState::default(),
-            items: Vec::new(),
-            last_selected: None,
-        }
-    }
-}
+// impl Default for StatefulItemList {
+//     fn default() -> Self {
+//         Self {
+//             state: ListState::default(),
+//             items: Vec::new(),
+//             last_selected: None,
+//         }
+//     }
+// }
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rss {
