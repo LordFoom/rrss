@@ -140,6 +140,32 @@ impl App {
     pub fn num_items(&self) -> usize {
         self.current_items.items.len()
     }
+
+    pub fn content_pane_text(&self) -> String {
+        if self.current_items.items.len() == 0 {
+            return "Nothing to display".to_string();
+        }
+
+        let idx = if let Some(idx) = self.current_items.state.selected() {
+            idx
+        } else {
+            return "Nothing to display".to_string();
+        };
+
+        if let Some(item) = self.current_items.items.get(idx) {
+            return if let Some(description) = item.description.clone() {
+                description
+            } else {
+                return item
+                    .link
+                    .clone()
+                    .unwrap_or("Nothing to display".to_string())
+                    .to_string();
+            };
+        } else {
+            return "Nothing to display".to_string();
+        }
+    }
 }
 
 pub struct StatefulChannelList {
