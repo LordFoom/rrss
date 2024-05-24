@@ -1,7 +1,4 @@
-use std::{
-    fmt::write,
-    io::{self, stdout, Stdout},
-};
+use std::io::{self, stdout, Stdout};
 
 use anyhow::{Context, Result};
 use crossterm::{
@@ -19,12 +16,9 @@ use ratatui::{
     Frame, Terminal,
 };
 
-use crate::{
-    display::display_channel,
-    model::{App, AppState, SelectedPane, StatefulItemList},
-};
+use crate::model::{App, AppState, SelectedPane, StatefulItemList};
 
-const TODO_HEADER_BG: Color = tailwind::BLUE.c950;
+const _TODO_HEADER_BG: Color = tailwind::BLUE.c950;
 const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
 const ALT_ROW_COLOR: Color = tailwind::SLATE.c900;
 const SELECTED_STYLE_FG: Color = tailwind::BLUE.c300;
