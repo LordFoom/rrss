@@ -2,7 +2,6 @@ use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
-use crossterm::event::{self, Event, KeyCode};
 use log::{debug, LevelFilter};
 use log4rs::{
     append::file::FileAppender,
@@ -10,9 +9,8 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
-use model::{App, AppState};
-use ratatui::{backend::Backend, Terminal};
-use tui::{restore_terminal, run_app, setup_terminal, ui};
+use model::App;
+use tui::{restore_terminal, run_app, setup_terminal};
 
 mod api;
 mod display;
@@ -61,14 +59,14 @@ fn init_error_hooks() -> Result<()> {
     let error = error.into_eyre_hook();
     color_eyre::eyre::set_hook(Box::new(move |e| {
         if let Err(err) = restore_terminal() {
-            eprintln!("Unable to restore terminal");
+            eprintln!("Unable to restore terminal ${err}");
         }
         error(e)
     }))?;
 
     std::panic::set_hook(Box::new(move |info| {
         if let Err(err) = restore_terminal() {
-            eprintln!("Unable to restore terminal");
+            eprintln!("Unable to restore terminal ${err}");
         }
         panic(info)
     }));
