@@ -67,14 +67,14 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .title("RRSS")
         .borders(Borders::ALL)
         .border_type(ratatui::widgets::BorderType::Double)
-        .style(Style::default().fg(Color::DarkGray));
+        .style(Style::default().fg(Color::Rgb(212, 144, 29)));
 
     let header = Paragraph::new("RRSS rss reader").block(header_block);
     frame.render_widget(header, top);
 
     display_channels(frame, app, channel_pane)?;
 
-    display_items(frame, app, item_pane)?;
+    display_selected_channel_items(frame, app, item_pane)?;
 
     let view_block = Block::new()
         .title("Content")
@@ -126,13 +126,13 @@ fn get_border_type(selected: bool) -> BorderType {
 }
 
 ///Display the items for the selected channel in their pane
-fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()> {
+fn display_selected_channel_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()> {
     let bt = get_border_type(app.selected_pane == SelectedPane::Items);
     let items_block = Block::new()
         .title("Items")
         .borders(Borders::ALL)
-        .border_type(bt)
-        .style(Style::default().fg(Color::Yellow));
+        .border_type(BorderType::Plain)
+        .style(Style::default().fg(TEXT_COLOR));
     //TODO here we gonna stick in the items we got oh yeah
     let item_list = if let Some(channel) = app.get_selected_channel() {
         if app.construct_items {
@@ -159,6 +159,18 @@ fn display_items(frame: &mut Frame, app: &mut App, item_pane: Rect) -> Result<()
     };
 
     frame.render_stateful_widget(item_list, item_pane, &mut app.current_items.state);
+    Ok(())
+}
+
+///Display the content for the selected item in its pane
+fn display_selected_item(frame: &mut Frame, text: &str, item_pane: Rect) -> Result<()> {
+    let item_block = Block::new()
+        .title("Content")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .style(Style::default().fg(ALT_ROW_COLOR));
+    let paragraph = Paragraph::new(text).block(item_block);
+    frame.render_widget(paragraph, item_pane);
     Ok(())
 }
 

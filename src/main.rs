@@ -76,13 +76,9 @@ fn init_error_hooks() -> Result<()> {
     Ok(())
 }
 
-//TODO Do multiple file urls from cli
 //TODO Allow url in config file
-//TODO make a tui
-//TODO select pane in tui - thick border
-//TODO select channel functionality
 //TODO populate items from channel selection
-//TODO select item functionality
+//TODO only fetch items for channel when triggered
 //TODO display item
 #[tokio::main]
 async fn main() -> Result<()> {
