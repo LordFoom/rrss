@@ -7,6 +7,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
+use log::info;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
@@ -63,7 +64,12 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .border_type(ratatui::widgets::BorderType::Double)
         .style(Style::default().fg(Color::Rgb(212, 144, 29)));
 
-    let header = Paragraph::new("RRSS rss reader").block(header_block);
+    let header = Paragraph::new(
+        r"RRSS rss reader
+                                [L]oad channel",
+    )
+    .block(header_block);
+
     frame.render_widget(header, top);
 
     display_channels(frame, app, channels_pane)?;
@@ -175,6 +181,7 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
                 //todo differentiate between the different selected states
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
+                KeyCode::Char('l') | KeyCode::Char('L') => info!("Loady loady loadington"),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }
