@@ -36,9 +36,6 @@ pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
 pub fn restore_terminal() -> Result<()> {
     disable_raw_mode().context("Unable to disable raw mode")?;
     stdout().execute(LeaveAlternateScreen)?;
-    // execute!(term.backend_mut(), LeaveAlternateScreen)
-    //     .context("Unable to return to main screen")?;
-    // term.show_cursor().context("Could not reveal cursor")
     Ok(())
 }
 
@@ -66,7 +63,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 
     let header = Paragraph::new(
         r"RRSS rss reader
-                                [L]oad channel",
+        [R]efresh channnel",
     )
     .block(header_block);
 
@@ -181,7 +178,7 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
                 //todo differentiate between the different selected states
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
-                KeyCode::Char('l') | KeyCode::Char('L') => info!("Loady loady loadington"),
+                KeyCode::Char('r') | KeyCode::Char('R') => info!("[R]efreshing!"),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }

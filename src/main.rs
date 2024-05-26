@@ -13,6 +13,7 @@ use model::App;
 use tui::{restore_terminal, run_app, setup_terminal};
 
 mod api;
+mod config;
 mod display;
 mod model;
 mod tui;
