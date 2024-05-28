@@ -2,6 +2,8 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::read_to_string, path::Path};
 
+use crate::model::App;
+
 #[derive(Deserialize, Serialize)]
 struct Config {
     ///channel name to url map
@@ -27,7 +29,29 @@ pub fn load_config(path: Option<String>) -> Result<Option<Config>> {
     Ok(maybe_config)
 }
 
+pub fn save_config(path: Option<String>, app: &App) -> Result<()> {
+    let mut channel_map = HashMap::new();
+    app.channels
+        .channels
+        .iter()
+        .for_each(|channel| {
+            channel_map.insert(channel.title, channel.get_link());
+        } );
+    //TODO actual saving
+
+
+    Ok(())
+
+}
+
 #[cfg(test)]
 mod test {
+    use super::*;
     //TODO test to check config creation
+    //
+    pub fn test_load_config() {
+        //create our test toml file
+        let toml_str = r"[channels]
+Between Two Cairns"
+    }
 }
