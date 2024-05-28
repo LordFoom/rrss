@@ -220,6 +220,15 @@ pub struct Channel {
     pub image: Option<Vec<Image>>,
 }
 
+impl Channel {
+    pub fn get_link(&self) -> String {
+        if self.link.len() == 0 {
+            return "UNKNOWN".to_string();
+        }
+        self.link.get(0).unwrap().to_string()
+    }
+}
+
 ///News items in the channel
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Item {
