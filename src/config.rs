@@ -50,9 +50,12 @@ pub fn save_config(path: Option<String>, app: &App) -> Result<()> {
 
 #[cfg(test)]
 mod test {
+    use std::default;
+
+    use crate::model::{Channel, StatefulChannelList};
+
     use super::*;
-    //TODO test to check config creation
-    //
+
     #[test]
     pub fn test_load_config() {
         //create our test toml file
@@ -63,15 +66,38 @@ mod test {
         std::fs::write(test_file, toml_str).unwrap();
         let cfg = load_config(Some(test_file.to_string())).unwrap().unwrap();
         assert!(cfg.channels.len() == 2);
-        let two_cairns_found = cfg.channels.iter().any(|(k, _)| {
+        let two_cairns_found = cfg.channels.iter().any(|(k, v)| {
             println!("key={k}");
-            return k == "Between Two Cairns";
+            return k == "Between Two Cairns" && v == "https://feeds.buzzsprout.com/2042709.rss";
         });
-        let fobdf = cfg.channels.iter().any(|(k, _)| {
+        let fobdf = cfg.channels.iter().any(|(k, v)| {
             println!("key={k}");
-            return k == "Fear of a Black Dragon";
+            return k == "Fear of a Black Dragon" && v == "http://feeds.libsyn.com/103241/rss";
         });
+        std::fs::remove_file(test_file).unwrap();
         assert!(two_cairns_found, "Did not find Between Two Cairns");
         assert!(fobdf, "Did not find Fear of a Black Dragon");
+    }
+
+    #[test]
+    pub fn test_save_config() {
+        let mut app = App::default();
+
+        app.channels.channels.push(Channel {
+            title: "First test".to_string(),
+            link: vec!["https://testing.test".to_string()],
+            ..Default::default()
+        });
+        let test_path = "test_file_save.toml".to_string();
+        let res = save_config(Some(test_path.clone()), &app);
+        assert!(res.is_ok());
+        let cfg = load_config(Some(test_path.clone())).unwrap().unwrap();
+        assert!(cfg.channels.len() == 2);
+        let cfg_found = cfg.channels.iter().any(|(k, v)| {
+            println!("key={k}");
+            return k == "First test" && v == "https://testing.test";
+        });
+        std::fs::remove_file(test_path.clone()).unwrap();
+        assert!(cfg_found, "Did not find cfg");
     }
 }
