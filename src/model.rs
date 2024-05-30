@@ -212,7 +212,7 @@ pub struct Rss {
 }
 
 ///Rss Channel
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Channel {
     pub title: String,
     pub link: Vec<String>,
