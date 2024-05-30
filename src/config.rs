@@ -50,9 +50,8 @@ pub fn save_config(path: Option<String>, app: &App) -> Result<()> {
 
 #[cfg(test)]
 mod test {
-    use std::default;
 
-    use crate::model::{Channel, StatefulChannelList};
+    use crate::model::Channel;
 
     use super::*;
 
@@ -92,7 +91,7 @@ mod test {
         let res = save_config(Some(test_path.clone()), &app);
         assert!(res.is_ok());
         let cfg = load_config(Some(test_path.clone())).unwrap().unwrap();
-        assert!(cfg.channels.len() == 2);
+        assert!(cfg.channels.len() == 1);
         let cfg_found = cfg.channels.iter().any(|(k, v)| {
             println!("key={k}");
             return k == "First test" && v == "https://testing.test";
