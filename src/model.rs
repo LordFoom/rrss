@@ -1,18 +1,21 @@
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Default)]
 pub enum AppState {
+    #[default]
     Running,
     Stopped,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Default)]
 pub enum SelectedPane {
+    #[default]
     Channels,
     Items,
 }
 
+#[derive(Default)]
 pub struct App {
     pub channels: StatefulChannelList,
     pub current_items: StatefulItemList,
@@ -167,6 +170,7 @@ impl App {
     }
 }
 
+#[derive(Default)]
 pub struct StatefulChannelList {
     pub state: ListState,
     pub channels: Vec<Channel>,
