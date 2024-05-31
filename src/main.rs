@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
+use config::load_config;
 use log::{debug, LevelFilter};
 use log4rs::{
     append::file::FileAppender,
@@ -20,9 +21,13 @@ mod tui;
 
 #[derive(Parser, Debug)]
 struct Args {
+    ///Optional list of urls to load up for the reader
     urls: Vec<String>,
     #[arg(short, long)]
     verbose: bool,
+    ///Optional file with toml of channels to use
+    #[arg(short, long)]
+    file: Option<String>,
 }
 
 ///Set up logging to the file, if enabled
@@ -90,7 +95,7 @@ async fn main() -> Result<()> {
     let mut term = setup_terminal().context("Failed to setup terminal")?;
 
     let mut channels = Vec::new();
-    for url in args.urls {
+    for url in args.urls.clone() {
         //this we should make async, so we can start up and it does it in the background...?
         if let Some(channel) = fetch_rss_feed(&url).await? {
             channels.push(channel);
@@ -98,6 +103,13 @@ async fn main() -> Result<()> {
         } else {
             debug!("No rss channel found...");
         }
+    }
+
+    //if no urls are passed in, we look at the config
+    if args.urls.clone().is_empty() {
+        //see if there is config to load
+        let maybe_config = load_config(args.file)?;
+        if let Some(cfg) = maybe_config {}
     }
 
     let mut app = App::from(channels);
