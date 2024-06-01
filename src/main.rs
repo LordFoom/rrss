@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
-use clap::Parser;
+use clap::{ArgGroup, Parser};
 use color_eyre::config::HookBuilder;
 use config::load_config;
 use log::{debug, LevelFilter};
@@ -20,6 +20,7 @@ mod model;
 mod tui;
 
 #[derive(Parser, Debug)]
+#[command(group = ArgGroup::new("exclusive").args(&["urls", "file"]))]
 struct Args {
     ///Optional list of urls to load up for the reader
     urls: Vec<String>,
