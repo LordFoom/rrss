@@ -63,7 +63,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 
     let header = Paragraph::new(
         r"RRSS rss reader
-        [R]efresh channnel",
+        [R]efresh channnel | [S]ave channels",
     )
     .block(header_block);
 
@@ -179,6 +179,7 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                 KeyCode::Char('r') | KeyCode::Char('R') => info!("[R]efreshing!"),
+                KeyCode::Char('s') | KeyCode::Char('S') => info!("[S]aving the file"),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }
