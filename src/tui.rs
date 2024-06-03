@@ -1,6 +1,7 @@
 use std::io::{self, stdout, Stdout};
 
 use anyhow::{Context, Result};
+use color_eyre::owo_colors::OwoColorize;
 use crossterm::{
     event::{self, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -188,4 +189,40 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
             return Ok(());
         }
     }
+}
+
+pub fn show_info_popup(txt: &str) {
+    let popup_block = Block::new()
+        .style(Style::default().fg(Color::Rgb(190, 147, 228)))
+        .borders(Borders::all())
+        .border_type(BorderType::Double)
+        .border_style(Style::default().fg(Color::Rgb(191, 0, 255)));
+    // let popup_paragraph =
+}
+
+///Get an area that is centered'ish - with horizontal and vertical bias
+///In which one could for example display a popup
+fn centered_rect(h: u16, v: u16, rect: Rect) -> Rect {
+    //cut into 3 vertical rows
+    let layout = Layout::new(
+        Direction::Vertical,
+        [
+            Constraint::Percentage((100 - v) / 2),
+            Constraint::Percentage(v),
+            Constraint::Percentage((100 - v) / 2),
+        ],
+    )
+    .split(rect);
+
+    //now we split the middle vertical block into 3 columns
+    //and we return the middle column
+    Layout::new(
+        Direction::Horizontal,
+        [
+            Constraint::Percentage((100 - h) / 2),
+            Constraint::Percentage(h),
+            Constraint::Percentage((100 - h) / 2),
+        ],
+    )
+    .split(layout[1])[1]
 }
