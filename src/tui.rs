@@ -18,7 +18,10 @@ use ratatui::{
     Frame, Terminal,
 };
 
-use crate::model::{App, AppState, SelectedPane, StatefulItemList};
+use crate::{
+    api::fetch_rss_feed,
+    model::{App, AppState, SelectedPane, StatefulItemList},
+};
 
 const _TODO_HEADER_BG: Color = tailwind::BLUE.c950;
 const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
@@ -179,7 +182,7 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
                 //todo differentiate between the different selected states
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
-                KeyCode::Char('r') | KeyCode::Char('R') => info!("[R]efreshing!"),
+                KeyCode::Char('r') | KeyCode::Char('R') => reload_selected_channel(app)?,
                 KeyCode::Char('s') | KeyCode::Char('S') => info!("[S]aving the file"),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
@@ -191,13 +194,23 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
     }
 }
 
-pub fn show_info_popup(txt: &str) {
+pub fn reload_selected_channel(app: &mut App) -> Result<()> {
+    //get the selected channel, if it exists
+    if let Some(selected_channel) = app.get_selected_channel() {
+        if let Some(channel) = fetch_rss_feed(&selected_channel.get_link())? {};
+    }
+    Ok(())
+}
+
+pub fn show_info_popup(txt: &str, f: &Frame) {
     let popup_block = Block::new()
         .style(Style::default().fg(Color::Rgb(190, 147, 228)))
         .borders(Borders::all())
         .border_type(BorderType::Double)
         .border_style(Style::default().fg(Color::Rgb(191, 0, 255)));
-    // let popup_paragraph =
+    let popup_paragraph = Paragraph::new(txt).block(popup_block);
+    let centered_pane = centered_rect(20, 20, f.size());
+    f.render_widget(popup_paragraph, centered_pane);
 }
 
 ///Get an area that is centered'ish - with horizontal and vertical bias
