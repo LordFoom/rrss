@@ -7,7 +7,7 @@ use crate::model::App;
 #[derive(Deserialize, Serialize)]
 pub struct RssConfig {
     ///channel name to url map
-    channels: HashMap<String, String>,
+    pub channels: HashMap<String, String>,
 }
 ///Load config from file, if file exists
 ///If no file passed, will default to checking for './.rrss.toml'

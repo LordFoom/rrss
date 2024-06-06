@@ -20,7 +20,7 @@ use ratatui::{
 
 use crate::{
     api::fetch_rss_feed,
-    model::{App, AppState, SelectedPane, StatefulItemList},
+    model::{App, AppState, SelectedPane, StatefulChannelList, StatefulItemList},
 };
 
 const _TODO_HEADER_BG: Color = tailwind::BLUE.c950;
@@ -173,7 +173,7 @@ fn display_selected_item(frame: &mut Frame, text: &str, item_pane: Rect) -> Resu
 }
 
 ///Run run run the app merrily down the bitstream
-pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
+pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
     loop {
         term.draw(|f| ui(f, app).expect("Could not draw the ui"))?;
         if let Event::Key(key) = event::read()? {
@@ -182,7 +182,7 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
                 //todo differentiate between the different selected states
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
-                KeyCode::Char('r') | KeyCode::Char('R') => reload_selected_channel(app)?,
+                KeyCode::Char('r') | KeyCode::Char('R') => reload_selected_channel(app).await?,
                 KeyCode::Char('s') | KeyCode::Char('S') => info!("[S]aving the file"),
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
@@ -194,15 +194,17 @@ pub fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> 
     }
 }
 
-pub fn reload_selected_channel(app: &mut App) -> Result<()> {
+pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     //get the selected channel, if it exists
     if let Some(selected_channel) = app.get_selected_channel() {
-        if let Some(channel) = fetch_rss_feed(&selected_channel.get_link())? {};
+        if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
+            app.update_selected_channel(&channel);
+        };
     }
     Ok(())
 }
 
-pub fn show_info_popup(txt: &str, f: &Frame) {
+pub fn show_info_popup(txt: &str, f: &mut Frame) {
     let popup_block = Block::new()
         .style(Style::default().fg(Color::Rgb(190, 147, 228)))
         .borders(Borders::all())

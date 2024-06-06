@@ -47,6 +47,10 @@ impl App {
         None
     }
 
+    pub fn update_selected_channel(&mut self, channel: &Channel) {
+        self.channels.update_selected_channel(channel);
+    }
+
     ///Graphically upwards from the current position
     ///If nothing selected, will select the last item
     pub fn select_up(&mut self) {
@@ -177,6 +181,16 @@ pub struct StatefulChannelList {
     pub last_selected: Option<usize>,
 }
 
+impl StatefulChannelList {
+    pub fn update_selected_channel(&mut self, channel: &Channel) {
+        if let Some(idx) = self.state.selected() {
+            self.channels.insert(idx, channel.clone());
+        } else {
+            self.channels.push(channel.clone());
+        }
+    }
+}
+
 ///Intended to display a channels items in a pane
 #[derive(Default)]
 pub struct StatefulItemList {
@@ -212,7 +226,7 @@ pub struct Rss {
 }
 
 ///Rss Channel
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Channel {
     pub title: String,
     pub link: Vec<String>,
@@ -225,11 +239,30 @@ pub struct Channel {
 }
 
 impl Channel {
+    ///Get the rss url for the channel
     pub fn get_link(&self) -> String {
         if self.link.len() == 0 {
             return "UNKNOWN".to_string();
         }
-        self.link.get(0).unwrap().to_string()
+        let mut return_link = String::new();
+        for link in self.link.clone() {
+            if link.ends_with("xml") || link.ends_with("rss") {
+                return_link = link
+            }
+        }
+        if return_link.is_empty() {
+            return_link = self.link.get(0).unwrap().to_string()
+        }
+        return_link
+    }
+
+    ///Set the url of the channel
+    pub fn set_link(&mut self, txt: &str) {
+        //clear out old items
+        if !self.link.is_empty() {
+            self.link = Vec::new();
+        }
+        self.link.push(txt.to_string())
     }
 }
 

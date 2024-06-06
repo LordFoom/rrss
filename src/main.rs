@@ -10,7 +10,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
     Config,
 };
-use model::App;
+use model::{App, Channel};
 use tui::{restore_terminal, run_app, setup_terminal};
 
 mod api;
@@ -100,7 +100,6 @@ async fn main() -> Result<()> {
         //this we should make async, so we can start up and it does it in the background...?
         if let Some(channel) = fetch_rss_feed(&url).await? {
             channels.push(channel);
-            // display_channel(&channel);
         } else {
             debug!("No rss channel found...");
         }
@@ -110,11 +109,19 @@ async fn main() -> Result<()> {
     if args.urls.clone().is_empty() {
         //see if there is config to load
         let maybe_config = load_config(args.file)?;
-        if let Some(cfg) = maybe_config {}
+        if let Some(cfg) = maybe_config {
+            let app_channel_vec = cfg.channels.into_iter().map(|(channel_name, channel_url)| {
+                let mut channel = Channel {
+                    title: channel_name,
+                    ..Default::default()
+                };
+                channel.set_link(&channel_url);
+            });
+        }
     }
 
     let mut app = App::from(channels);
-    run_app(&mut term, &mut app)?;
+    run_app(&mut term, &mut app).await?;
     // let result = reqwest::get(url).await?;
     // println!("{:?}", result);
     // let txt = result.text().await?;
