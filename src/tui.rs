@@ -4,7 +4,6 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use color_eyre::owo_colors::OwoColorize;
 use crossterm::{
     event::{self, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -24,7 +23,7 @@ use ratatui::{
 use crate::{
     api::fetch_rss_feed,
     config::{save_config, RssConfig},
-    model::{App, AppState, SelectedPane, StatefulChannelList, StatefulItemList},
+    model::{App, AppState, SelectedPane, StatefulItemList},
 };
 
 const _TODO_HEADER_BG: Color = tailwind::BLUE.c950;
@@ -187,7 +186,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                 KeyCode::Char('r') | KeyCode::Char('R') => reload_selected_channel(app).await?,
-                KeyCode::Char('s') | KeyCode::Char('S') => info!("[S]aving the file"),
+                KeyCode::Char('s') | KeyCode::Char('S') => save_into_config(app).await?,
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }
@@ -216,7 +215,7 @@ pub async fn save_into_config(app: &mut App) -> Result<()> {
     }
     let cfg = RssConfig { channels };
     //TODO make this take in a file path
-    save_config(None, app)
+    save_config(None, &cfg)?;
     Ok(())
 }
 
