@@ -2,8 +2,6 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::read_to_string, path::Path};
 
-use crate::model::App;
-
 #[derive(Deserialize, Serialize)]
 pub struct RssConfig {
     ///channel name to url map
@@ -29,29 +27,19 @@ pub fn load_config(path: Option<String>) -> Result<Option<RssConfig>> {
     Ok(maybe_config)
 }
 
-pub fn save_config(path: Option<String>, app: &App) -> Result<()> {
+pub fn save_config(path: Option<String>, cfg: &RssConfig) -> Result<()> {
     let config_file = if let Some(fp) = path {
         fp
     } else {
         ".rrss.toml".to_string()
     };
-    let mut channel_map = HashMap::new();
-    app.channels.channels.iter().for_each(|channel| {
-        channel_map.insert(channel.title.clone(), channel.get_link());
-    });
-
-    let config = RssConfig {
-        channels: channel_map,
-    };
-    let config_file_contents = toml::to_string(&config)?;
+    let config_file_contents = toml::to_string(&cfg)?;
     std::fs::write(config_file, config_file_contents)?;
     Ok(())
 }
 
 #[cfg(test)]
 mod test {
-
-    use crate::model::Channel;
 
     use super::*;
 
@@ -80,15 +68,11 @@ mod test {
 
     #[test]
     pub fn test_save_config() {
-        let mut app = App::default();
-
-        app.channels.channels.push(Channel {
-            title: "First test".to_string(),
-            link: vec!["https://testing.test".to_string()],
-            ..Default::default()
-        });
+        let mut cfg_map = HashMap::new();
+        cfg_map.insert("First test".to_string(), "https://testing.test".to_string());
+        let cfg = RssConfig { channels: cfg_map };
         let test_path = "test_file_save.toml".to_string();
-        let res = save_config(Some(test_path.clone()), &app);
+        let res = save_config(Some(test_path.clone()), &cfg);
         assert!(res.is_ok());
         let cfg = load_config(Some(test_path.clone())).unwrap().unwrap();
         assert!(cfg.channels.len() == 1);

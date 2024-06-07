@@ -1,4 +1,7 @@
-use std::io::{self, stdout, Stdout};
+use std::{
+    collections::HashMap,
+    io::{self, stdout, Stdout},
+};
 
 use anyhow::{Context, Result};
 use color_eyre::owo_colors::OwoColorize;
@@ -20,6 +23,7 @@ use ratatui::{
 
 use crate::{
     api::fetch_rss_feed,
+    config::{save_config, RssConfig},
     model::{App, AppState, SelectedPane, StatefulChannelList, StatefulItemList},
 };
 
@@ -196,11 +200,23 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
 
 pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     //get the selected channel, if it exists
+    //TODO mark app state to show loading popup
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
         };
     }
+    Ok(())
+}
+
+pub async fn save_into_config(app: &mut App) -> Result<()> {
+    let mut channels = HashMap::new();
+    for channel in app.channels.channels.clone() {
+        channels.insert(channel.title.clone(), channel.get_link().clone());
+    }
+    let cfg = RssConfig { channels };
+    //TODO make this take in a file path
+    save_config(None, app)
     Ok(())
 }
 
