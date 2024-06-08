@@ -241,7 +241,7 @@ pub struct Channel {
 impl Channel {
     ///Get the rss url for the channel
     pub fn get_link(&self) -> String {
-        if self.link.len() == 0 {
+        if self.link.is_empty() {
             return "UNKNOWN".to_string();
         }
         let mut return_link = String::new();
@@ -251,7 +251,7 @@ impl Channel {
             }
         }
         if return_link.is_empty() {
-            return_link = self.link.get(0).unwrap().to_string()
+            return_link = self.link.first().unwrap().to_string()
         }
         return_link
     }
@@ -283,7 +283,7 @@ pub struct Item {
 impl Item {
     pub fn get_title(&self) -> String {
         if let Some(titles) = &self.title {
-            if let Some(title) = titles.get(0) {
+            if let Some(title) = titles.first() {
                 return title.clone();
             }
         }
