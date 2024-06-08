@@ -22,6 +22,8 @@ pub struct App {
     pub state: AppState,
     pub selected_pane: SelectedPane,
     pub construct_items: bool,
+    ///When this is set, display the text in an info popup until unset
+    pub info_popup_text: Option<String>,
 }
 
 impl App {
@@ -37,6 +39,7 @@ impl App {
             state: AppState::Running,
             selected_pane: SelectedPane::Channels,
             construct_items: true,
+            info_popup_text: None,
         }
     }
 
