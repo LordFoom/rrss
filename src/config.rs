@@ -1,4 +1,5 @@
 use anyhow::Result;
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::read_to_string, path::Path};
 
@@ -33,7 +34,9 @@ pub fn save_config(path: Option<String>, cfg: &RssConfig) -> Result<()> {
     } else {
         ".rrss.toml".to_string()
     };
+    info!("Saving config to {config_file}");
     let config_file_contents = toml::to_string(&cfg)?;
+    info!("Saving cfg is  {config_file_contents}");
     std::fs::write(config_file, config_file_contents)?;
     Ok(())
 }
