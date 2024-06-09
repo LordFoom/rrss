@@ -1,3 +1,4 @@
+use log::info;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 
@@ -232,7 +233,7 @@ pub struct Rss {
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Channel {
     pub title: String,
-    pub link: Vec<String>,
+    pub link: Vec<ChannelLink>,
     pub description: String,
     #[serde(rename = "pubDate")]
     pub pub_date: Option<String>,
@@ -241,14 +242,25 @@ pub struct Channel {
     pub image: Option<Vec<Image>>,
 }
 
+///Structure to hold the various link elements  in the returned xml
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct ChannelLink {
+    pub href: String,
+    ///Actual text of the link
+    #[serde(rename = "$value")]
+    pub value: String,
+}
+
 impl Channel {
     ///Get the rss url for the channel
     pub fn get_link(&self) -> String {
+        info!("Getting the link...");
         if self.link.is_empty() {
             return "UNKNOWN".to_string();
         }
         let mut return_link = String::new();
         for link in self.link.clone() {
+            info!("Possible link: {link}");
             if link.ends_with("xml") || link.ends_with("rss") {
                 return_link = link
             }
@@ -256,6 +268,7 @@ impl Channel {
         if return_link.is_empty() {
             return_link = self.link.first().unwrap().to_string()
         }
+        info!("We are returning {return_link}");
         return_link
     }
 
@@ -308,4 +321,20 @@ pub struct Image {
     pub href: Option<String>,
     pub link: Option<String>,
     pub title: Option<String>,
+}
+
+mod test {
+    /* reference xml for our test
+    <atom:link href="https://feeds.buzzsprout.com/2042709.rss" rel="self" type="application/rss+xml" />
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub" xmlns="http://www.w3.org/2005/Atom" />
+    <title>Between Two Cairns</title>
+    <lastBuildDate>Thu, 30 May 2024 14:30:13 -0400</lastBuildDate>
+    <link>https://www.buzzsprout.com/2042709</link>
+    <language>en-us</language>
+    */
+
+    #[test]
+    pub fn test_get_link() {
+        // let mut links = ""
+    }
 }
