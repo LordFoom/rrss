@@ -213,15 +213,6 @@ impl StatefulItemList {
     }
 }
 
-// impl Default for StatefulItemList {
-//     fn default() -> Self {
-//         Self {
-//             state: ListState::default(),
-//             items: Vec::new(),
-//             last_selected: None,
-//         }
-//     }
-// }
 ///Big rss wrapping tag
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Rss {
@@ -245,10 +236,10 @@ pub struct Channel {
 ///Structure to hold the various link elements  in the returned xml
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct ChannelLink {
-    pub href: String,
+    pub href: Option<String>,
     ///Actual text of the link
     #[serde(rename = "$value")]
-    pub value: String,
+    pub value: Option<String>,
 }
 
 impl Channel {
@@ -260,13 +251,11 @@ impl Channel {
         }
         let mut return_link = String::new();
         for link in self.link.clone() {
-            info!("Possible link: {link}");
-            if link.ends_with("xml") || link.ends_with("rss") {
-                return_link = link
+            if let Some(href) = link.href {
+                if href.ends_with("xml") || href.ends_with("rss") {
+                    return_link = href
+                }
             }
-        }
-        if return_link.is_empty() {
-            return_link = self.link.first().unwrap().to_string()
         }
         info!("We are returning {return_link}");
         return_link
@@ -278,7 +267,12 @@ impl Channel {
         if !self.link.is_empty() {
             self.link = Vec::new();
         }
-        self.link.push(txt.to_string())
+        let channel_link = ChannelLink {
+            href: Some(txt.to_string()),
+            value: None,
+        };
+
+        self.link.push(channel_link);
     }
 }
 

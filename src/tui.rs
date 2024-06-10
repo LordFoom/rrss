@@ -10,7 +10,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use log::info;
+
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Layout},
@@ -82,6 +82,10 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
 
     let item_content = app.content_pane_text();
     display_selected_item(frame, &item_content, content_pane)?;
+
+    if let Some(text) = app.info_popup_text.clone() {
+        show_info_popup(&text, frame);
+    }
 
     Ok(())
 }
@@ -209,6 +213,7 @@ pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
 }
 
 pub async fn save_into_config(app: &mut App) -> Result<()> {
+    app.info_popup_text = Some("Saving config...".to_string());
     let mut channels = HashMap::new();
     for channel in app.channels.channels.clone() {
         channels.insert(channel.title.clone(), channel.get_link().clone());
@@ -216,6 +221,7 @@ pub async fn save_into_config(app: &mut App) -> Result<()> {
     let cfg = RssConfig { channels };
     //TODO make this take in a file path
     save_config(None, &cfg)?;
+    app.info_popup_text = None;
     Ok(())
 }
 
