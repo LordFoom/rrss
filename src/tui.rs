@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
+    thread::spawn,
 };
 
 use anyhow::{Context, Result};
@@ -190,7 +191,10 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                 KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                 KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                 KeyCode::Char('r') | KeyCode::Char('R') => reload_selected_channel(app).await?,
-                KeyCode::Char('s') | KeyCode::Char('S') => save_into_config(app).await?,
+                KeyCode::Char('s') | KeyCode::Char('S') => {
+                    app.info_popup_text = Some("Saving config...".to_string());
+                    spawn(|| async move { save_into_config(app).await });
+                }
                 KeyCode::Tab => app.change_selected_pane(),
                 _ => {}
             }
@@ -221,7 +225,6 @@ pub async fn save_into_config(app: &mut App) -> Result<()> {
     let cfg = RssConfig { channels };
     //TODO make this take in a file path
     save_config(None, &cfg)?;
-    app.info_popup_text = None;
     Ok(())
 }
 
