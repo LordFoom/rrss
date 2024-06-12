@@ -28,7 +28,7 @@ pub fn load_config(path: Option<String>) -> Result<Option<RssConfig>> {
     Ok(maybe_config)
 }
 
-pub fn save_config(path: Option<String>, cfg: &RssConfig) -> Result<()> {
+pub fn save_config(path: Option<String>, cfg: RssConfig) -> Result<()> {
     let config_file = if let Some(fp) = path {
         fp
     } else {

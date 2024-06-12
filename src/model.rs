@@ -2,21 +2,21 @@ use log::info;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Default)]
+#[derive(PartialEq, Eq, Default, Clone)]
 pub enum AppState {
     #[default]
     Running,
     Stopped,
 }
 
-#[derive(PartialEq, Default)]
+#[derive(PartialEq, Default, Clone)]
 pub enum SelectedPane {
     #[default]
     Channels,
     Items,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct App {
     pub channels: StatefulChannelList,
     pub current_items: StatefulItemList,
@@ -178,7 +178,7 @@ impl App {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct StatefulChannelList {
     pub state: ListState,
     pub channels: Vec<Channel>,
@@ -196,7 +196,7 @@ impl StatefulChannelList {
 }
 
 ///Intended to display a channels items in a pane
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct StatefulItemList {
     pub state: ListState,
     pub items: Vec<Item>,
