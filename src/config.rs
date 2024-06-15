@@ -12,18 +12,24 @@ pub struct RssConfig {
 ///If no file passed, will default to checking for './.rrss.toml'
 pub fn load_config(path: Option<String>) -> Result<Option<RssConfig>> {
     let config_file = if let Some(fp) = path {
+        info!("config file: {}", fp);
         fp
     } else {
+        info!("no config file supplied, defaulting to '.rrss.toml'");
         ".rrss.toml".to_string()
     };
     let maybe_config = match Path::new(&config_file).exists() {
         true => {
+            info!("Found config file, parsing");
             //load the string from the file
             let toml_str = read_to_string(config_file)?;
             let cfg = toml::from_str(&toml_str)?;
             Some(cfg)
         }
-        false => None,
+        false => {
+            info!("No config found");
+            None
+        }
     };
     Ok(maybe_config)
 }

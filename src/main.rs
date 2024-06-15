@@ -3,6 +3,7 @@ use api::fetch_rss_feed;
 use clap::{ArgGroup, Parser};
 use color_eyre::config::HookBuilder;
 use config::load_config;
+use log::info;
 use log::{debug, LevelFilter};
 use log4rs::{
     append::file::FileAppender,
@@ -107,10 +108,11 @@ async fn main() -> Result<()> {
 
     //if no urls are passed in, we look at the config
     if args.urls.clone().is_empty() {
+        info!("No urls passed in, checking for config file");
         //see if there is config to load
         let maybe_config = load_config(args.file)?;
         if let Some(cfg) = maybe_config {
-            let app_channel_vec = cfg.channels.into_iter().map(|(channel_name, channel_url)| {
+            let _app_channel_vec = cfg.channels.into_iter().map(|(channel_name, channel_url)| {
                 let mut channel = Channel {
                     title: channel_name,
                     ..Default::default()
