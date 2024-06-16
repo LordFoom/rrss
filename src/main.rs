@@ -112,13 +112,22 @@ async fn main() -> Result<()> {
         //see if there is config to load
         let maybe_config = load_config(args.file)?;
         if let Some(cfg) = maybe_config {
-            let _app_channel_vec = cfg.channels.into_iter().map(|(channel_name, channel_url)| {
-                let mut channel = Channel {
-                    title: channel_name,
-                    ..Default::default()
-                };
-                channel.set_link(&channel_url);
-            });
+            info!("Found config file");
+            let app_channel_vec = cfg
+                .channels
+                .into_iter()
+                .map(|(channel_name, channel_url)| {
+                    let mut channel = Channel {
+                        title: channel_name,
+                        ..Default::default()
+                    };
+                    channel.set_link(&channel_url);
+                    channel
+                })
+                .collect::<Vec<Channel>>();
+            channels.extend(app_channel_vec);
+        } else {
+            info!("Config file not found");
         }
     }
 

@@ -188,7 +188,7 @@ pub struct StatefulChannelList {
 impl StatefulChannelList {
     pub fn update_selected_channel(&mut self, channel: &Channel) {
         if let Some(idx) = self.state.selected() {
-            self.channels.insert(idx, channel.clone());
+            self.channels[idx] = channel.clone();
         } else {
             self.channels.push(channel.clone());
         }

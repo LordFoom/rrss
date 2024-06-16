@@ -33,6 +33,7 @@ use crate::{
     model::{App, AppState, SelectedPane, StatefulItemList},
 };
 
+const POPUP_TIME: u64 = 1;
 const _TODO_HEADER_BG: Color = tailwind::BLUE.c950;
 const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
 const ALT_ROW_COLOR: Color = tailwind::SLATE.c900;
@@ -206,14 +207,20 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                     KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => app.select_down(),
                     KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                     KeyCode::Char('r') | KeyCode::Char('R') => {
-                        reload_selected_channel(&mut app).await?
+                        app.info_popup_text = Some("Reloading...".to_string());
+                        reload_selected_channel(&mut app).await?;
+                        let tx = tx.clone();
+                        thread::spawn(move || {
+                            thread::sleep(Duration::from_secs(POPUP_TIME));
+                            tx.send(()).unwrap();
+                        });
                     }
                     KeyCode::Char('s') | KeyCode::Char('S') => {
                         app.info_popup_text = Some("Saving config...".to_string());
                         save_into_config(&mut app).await?;
                         let tx = tx.clone();
                         thread::spawn(move || {
-                            thread::sleep(Duration::from_secs(2));
+                            thread::sleep(Duration::from_secs(POPUP_TIME));
                             tx.send(()).unwrap();
                         });
                     }
