@@ -76,7 +76,7 @@ impl App {
         } else {
             channels_len - 1
         };
-        let _ = self.channels.state.select(Some(select_idx));
+        self.channels.state.select(Some(select_idx));
         //need to load items
         self.construct_items = true
     }
@@ -93,7 +93,7 @@ impl App {
         } else {
             items_len - 1
         };
-        let _ = self.current_items.state.select(Some(select_idx));
+        self.current_items.state.select(Some(select_idx));
     }
 
     ///Graphically upwards from the current position
@@ -117,7 +117,7 @@ impl App {
         } else {
             0
         };
-        let _ = self.channels.state.select(Some(select_idx));
+        self.channels.state.select(Some(select_idx));
         //need to load items
         self.construct_items = true
     }
@@ -134,7 +134,7 @@ impl App {
         } else {
             0
         };
-        let _ = self.current_items.state.select(Some(select_idx));
+        self.current_items.state.select(Some(select_idx));
     }
 
     pub fn change_selected_pane(&mut self) {

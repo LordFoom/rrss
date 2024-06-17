@@ -2,11 +2,8 @@ use log::info;
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
-    sync::{
-        mpsc::{self, Receiver, Sender},
-        Arc, Mutex,
-    },
-    thread::{self, spawn},
+    sync::mpsc::{self, Receiver, Sender},
+    thread::{self},
     time::Duration,
 };
 
@@ -189,18 +186,18 @@ fn display_selected_item(frame: &mut Frame, text: &str, item_pane: Rect) -> Resu
 
 ///Run run run the app merrily down the bitstream
 pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
-    let app_arc = Arc::new(Mutex::new(app));
+    // let app_arc = Arc::new(Mutex::new(app));
     let (tx, rx): (Sender<()>, Receiver<()>) = mpsc::channel();
     loop {
         {
-            let mut app = app_arc.lock().unwrap();
+            // let mut app = app_arc.lock().unwrap();
             term.draw(|f| {
-                ui(f, &mut app).expect("Could not draw the ui");
+                ui(f, app).expect("Could not draw the ui");
             })?;
         }
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
-                let mut app = app_arc.lock().unwrap();
+                // let mut app = app_arc.lock().unwrap();
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => app.state = AppState::Stopped,
                     //todo differentiate between the different selected states
@@ -208,7 +205,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                     KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                     KeyCode::Char('r') | KeyCode::Char('R') => {
                         app.info_popup_text = Some("Reloading...".to_string());
-                        reload_selected_channel(&mut app).await?;
+                        reload_selected_channel(app).await?;
                         let tx = tx.clone();
                         thread::spawn(move || {
                             thread::sleep(Duration::from_secs(POPUP_TIME));
@@ -217,7 +214,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                     }
                     KeyCode::Char('s') | KeyCode::Char('S') => {
                         app.info_popup_text = Some("Saving config...".to_string());
-                        save_into_config(&mut app).await?;
+                        save_into_config(app).await?;
                         let tx = tx.clone();
                         thread::spawn(move || {
                             thread::sleep(Duration::from_secs(POPUP_TIME));
@@ -232,13 +229,13 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         //check if timer  has expired
         if let Ok(()) = rx.try_recv() {
             info!("Received popup text!");
-            let mut app = app_arc.lock().unwrap();
+            // let mut app = app_arc.lock().unwrap();
             app.info_popup_text = None;
             info!("Cleared out popup text!")
         }
 
         {
-            let app = app_arc.lock().unwrap();
+            // let app = app_arc.lock().unwrap();
 
             if app.state == AppState::Stopped {
                 return Ok(());
