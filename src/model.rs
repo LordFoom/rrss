@@ -66,6 +66,9 @@ impl App {
 
     pub fn select_up_channels(&mut self) {
         let channels_len = self.num_channels();
+        if channels_len == 0 {
+            return;
+        }
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
             if chnl_idx == 0 {
                 //loop around
@@ -83,6 +86,9 @@ impl App {
 
     pub fn select_up_items(&mut self) {
         let items_len = self.num_items();
+        if items_len == 0 {
+            return;
+        }
         let select_idx = if let Some(item_idx) = self.current_items.state.selected() {
             if item_idx == 0 {
                 //loop around
@@ -107,6 +113,9 @@ impl App {
 
     pub fn select_down_channels(&mut self) {
         let channels_len = self.num_channels();
+        if channels_len == 0 {
+            return;
+        }
         let select_idx = if let Some(chnl_idx) = self.channels.state.selected() {
             if chnl_idx == channels_len - 1 {
                 //loop around
@@ -124,6 +133,9 @@ impl App {
 
     pub fn select_down_items(&mut self) {
         let items_len = self.num_items();
+        if items_len == 0 {
+            return;
+        }
         let select_idx = if let Some(item_idx) = self.current_items.state.selected() {
             if item_idx == items_len - 1 {
                 //loop around
