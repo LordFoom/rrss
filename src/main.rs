@@ -81,10 +81,6 @@ fn init_error_hooks() -> Result<()> {
     Ok(())
 }
 
-//TODO Allow url in config file
-//TODO populate items from channel selection
-//TODO only fetch items for channel when triggered
-//TODO display item
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();

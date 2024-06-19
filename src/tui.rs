@@ -1,4 +1,5 @@
 use log::info;
+use scraper::Html;
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
@@ -144,7 +145,6 @@ fn display_selected_channel_items(frame: &mut Frame, app: &mut App, item_pane: R
     //TODO here we gonna stick in the items we got oh yeah
     let item_list = if let Some(channel) = app.get_selected_channel() {
         if app.construct_items {
-            //TODO here we can do a fetch
             app.current_items = StatefulItemList::from(channel);
             app.construct_items = false;
         }
@@ -171,13 +171,16 @@ fn display_selected_channel_items(frame: &mut Frame, app: &mut App, item_pane: R
 }
 
 ///Display the content for the selected item in its pane
-fn display_selected_item(frame: &mut Frame, text: &str, item_pane: Rect) -> Result<()> {
+fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) -> Result<()> {
     let view_block = Block::new()
         .title("Content")
         .borders(Borders::all())
         .border_type(BorderType::Thick)
         .style(Style::default().fg(Color::Cyan));
-    let item_content = Paragraph::new(text)
+    //let parsed_text = Html::parse_fragment(html_text);
+    let parsed_text = html_escape::decode_html_entities(html_text);
+    //let item_content = Paragraph::new(html_text)
+    let item_content = Paragraph::new(parsed_text)
         .wrap(Wrap { trim: true })
         .block(view_block);
     frame.render_widget(item_content, item_pane);
