@@ -74,12 +74,18 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .border_type(ratatui::widgets::BorderType::Double)
         .style(Style::default().fg(Color::Rgb(212, 144, 29)));
 
-    let header = Paragraph::new(
-        r"RRSS rss reader
+    let header = match app.selected_pane {
+        SelectedPane::Channels => Paragraph::new(
+            r"RRSS rss reader
         [R]efresh channnel | [S]ave channels",
-    )
-    .block(header_block);
-
+        )
+        .block(header_block),
+        SelectedPane::Items => Paragraph::new(
+            r"RRSS rss reader
+        [R]efresh channnel | [S]ave channels | [O]pen Item",
+        )
+        .block(header_block),
+    };
     frame.render_widget(header, top);
 
     display_channels(frame, app, channels_pane)?;
