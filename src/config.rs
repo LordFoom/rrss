@@ -81,7 +81,7 @@ mod test {
         cfg_map.insert("First test".to_string(), "https://testing.test".to_string());
         let cfg = RssConfig { channels: cfg_map };
         let test_path = "test_file_save.toml".to_string();
-        let res = save_config(Some(test_path.clone()), &cfg);
+        let res = save_config(Some(test_path.clone()), cfg);
         assert!(res.is_ok());
         let cfg = load_config(Some(test_path.clone())).unwrap().unwrap();
         assert!(cfg.channels.len() == 1);

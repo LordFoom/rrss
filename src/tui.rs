@@ -230,6 +230,9 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                             tx.send(()).unwrap();
                         });
                     }
+                    KeyCode::Char('o') | KeyCode::Char('O') => {
+                        open_selected_link(app);
+                    }
                     KeyCode::Tab => app.change_selected_pane(),
                     _ => {}
                 }
@@ -252,6 +255,8 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         }
     }
 }
+
+pub async fn open_selected_link(app: &App) -> Result<()> {}
 
 pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     //get the selected channel, if it exists
