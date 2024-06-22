@@ -55,6 +55,13 @@ impl App {
         self.channels.update_selected_channel(channel);
     }
 
+    pub fn get_selected_item(&self) -> Option<&Item> {
+        if let Some(idx) = self.current_items.state.selected() {
+            return self.current_items.items.get(idx);
+        }
+        None
+    }
+
     ///Graphically upwards from the current position
     ///If nothing selected, will select the last item
     pub fn select_up(&mut self) {
