@@ -257,9 +257,18 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
 }
 
 pub fn open_selected_link(app: &App) -> Result<()> {
+    info!("Called open link...");
     if let Some(item) = app.get_selected_item() {
+        info!("Found selected item");
         if let Some(path) = item.link.clone() {
+            info!("Found link to be opened {path}");
             open::that(path)?
+        } else if let Some(enclosure) = item.enclosure.clone() {
+            let url = enclosure.url.clone();
+            if !url.is_empty() {
+                info!("Found enclosure to be opened {url}");
+                open::that(url)?
+            }
         }
     }
     Ok(())
