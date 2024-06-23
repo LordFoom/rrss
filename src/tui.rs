@@ -214,21 +214,21 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                     KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => app.select_up(),
                     KeyCode::Char('r') | KeyCode::Char('R') => {
                         app.info_popup_text = Some("Reloading...".to_string());
-                        reload_selected_channel(app).await?;
                         let tx = tx.clone();
                         thread::spawn(move || {
                             thread::sleep(Duration::from_secs(POPUP_TIME));
                             tx.send(()).unwrap();
                         });
+                        reload_selected_channel(app).await?;
                     }
                     KeyCode::Char('s') | KeyCode::Char('S') => {
                         app.info_popup_text = Some("Saving config...".to_string());
-                        save_into_config(app).await?;
                         let tx = tx.clone();
                         thread::spawn(move || {
                             thread::sleep(Duration::from_secs(POPUP_TIME));
                             tx.send(()).unwrap();
                         });
+                        save_into_config(app).await?;
                     }
                     KeyCode::Char('o') | KeyCode::Char('O') => {
                         open_selected_link(app)?;
@@ -280,6 +280,7 @@ pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
+            app.construct_items = true;
         };
     }
     Ok(())
