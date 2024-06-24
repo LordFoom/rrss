@@ -148,7 +148,6 @@ fn display_selected_channel_items(frame: &mut Frame, app: &mut App, item_pane: R
         .borders(Borders::ALL)
         .border_type(bt)
         .style(Style::default().fg(TEXT_COLOR));
-    //TODO here we gonna stick in the items we got oh yeah
     let item_list = if let Some(channel) = app.get_selected_channel() {
         if app.construct_items {
             app.current_items = StatefulItemList::from(channel);
@@ -276,7 +275,6 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 
 pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     //get the selected channel, if it exists
-    //TODO mark app state to show loading popup
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
