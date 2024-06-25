@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::{ArgGroup, Parser};
@@ -128,7 +130,8 @@ async fn main() -> Result<()> {
     }
 
     let mut app = App::from(channels);
-    run_app(&mut term, &mut app).await?;
+    let app_arc = Arc::new(Mutex::new(app));
+    run_app(&mut term, app_arc).await?;
     // let result = reqwest::get(url).await?;
     // println!("{:?}", result);
     // let txt = result.text().await?;
