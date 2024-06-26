@@ -26,6 +26,7 @@ use ratatui::{
     Frame, Terminal,
 };
 
+use crate::model::Channel;
 use crate::{
     api::fetch_rss_feed,
     config::{save_config, RssConfig},
@@ -225,13 +226,12 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app_arc: Arc<Mutex<App>
                     KeyCode::Char('r') | KeyCode::Char('R') => {
                         let app_arc_inner = Arc::clone(&app_arc);
                         let tx_clone = tx.clone();
+                        {
+                            let mut app = app_arc_inner.lock().unwrap();
+                            app.info_popup_text = Some("Reloading...".to_string());
+                            // MutexGuard is dropped here when going out of scope
+                        }
                         tokio::spawn(async move {
-                            {
-                                let mut app = app_arc_inner.lock().unwrap();
-                                app.info_popup_text = Some("Reloading...".to_string());
-                                // MutexGuard is dropped here when going out of scope
-                            }
-
                             // Perform the async operation outside the mutex lock
                             reload_selected_channel(&app_arc_inner).await.unwrap();
 
@@ -301,10 +301,8 @@ pub fn open_selected_link(app: &App) -> Result<()> {
     Ok(())
 }
 
-pub async fn reload_selected_channel(app_arc: &Arc<Mutex<App>>) -> Result<()> {
-    // Perform the actual reload operation
-    let mut app = app_arc.lock().unwrap();
-    //get the selected channel, if it exists
+///Deprecated, we should be a bit more shall we say, functional
+pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
@@ -312,6 +310,14 @@ pub async fn reload_selected_channel(app_arc: &Arc<Mutex<App>>) -> Result<()> {
         };
     }
     Ok(())
+}
+
+pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
+    if let Some(channel) = fetch_rss_feed(url).await? {
+        Ok(Some(channel))
+    } else {
+        Ok(None)
+    }
 }
 
 pub async fn save_into_config(app: &mut App) -> Result<()> {
