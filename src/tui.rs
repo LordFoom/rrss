@@ -1,13 +1,12 @@
-use log::info;
+use log::{error, info};
 use scraper::Html;
-use std::sync::{Arc, Mutex};
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
-    sync::mpsc::{self, Receiver, Sender},
     thread,
     time::Duration,
 };
+use tokio::{sync::mpsc, time::sleep};
 
 use anyhow::{Context, Result};
 use crossterm::{
@@ -195,15 +194,15 @@ fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) ->
 }
 
 ///Run run run the app merrily down the bitstream
-pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app_arc: Arc<Mutex<App>>) -> Result<()> {
+pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
     // let app_arc = Arc::new(Mutex::new(app));
-    let (tx, rx): (Sender<()>, Receiver<()>) = mpsc::channel();
+    let (channel_reload_tx, mut channel_reload_rx) = mpsc::channel(1);
+    let (popup_tx, mut popup_rx) = mpsc::channel(1);
     loop {
         {
-            let mut app = app_arc.lock().unwrap();
             // let mut app = app_arc.lock().unwrap();
             term.draw(|f| {
-                ui(f, &mut app).expect("Could not draw the ui");
+                ui(f, app).expect("Could not draw the ui");
             })?;
         }
         if event::poll(Duration::from_millis(100))? {
@@ -211,39 +210,37 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app_arc: Arc<Mutex<App>
                 // let mut app = app_arc.lock().unwrap();
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => {
-                        let mut app = app_arc.lock().unwrap();
                         app.state = AppState::Stopped;
                     }
                     //todo differentiate between the different selected states
                     KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => {
-                        let mut app = app_arc.lock().unwrap();
                         app.select_down();
                     }
                     KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => {
-                        let mut app = app_arc.lock().unwrap();
                         app.select_up();
                     }
                     KeyCode::Char('r') | KeyCode::Char('R') => {
-                        let app_arc_inner = Arc::clone(&app_arc);
-                        let tx_clone = tx.clone();
-                        {
-                            let mut app = app_arc_inner.lock().unwrap();
+                        if let Some(channel) = app.get_selected_channel() {
+                            let url = channel.get_link();
+                            let chnl_tx_clone = channel_reload_tx.clone();
+                            let popup_tx_clone = popup_tx.clone();
                             app.info_popup_text = Some("Reloading...".to_string());
                             // MutexGuard is dropped here when going out of scope
+                            tokio::spawn(async move {
+                                // Send signal
+                                //wait 3s
+                                sleep(Duration::from_secs(3)).await;
+
+                                popup_tx_clone.send(()).await.unwrap();
+                            });
+                            tokio::spawn(async move {
+                                //reload_selected_channel(&app_arc_inner).await.unwrap();
+                                let reloaded_channel = load_channel(&url).await.unwrap();
+
+                                // Send signal
+                                chnl_tx_clone.send(reloaded_channel).await.unwrap();
+                            });
                         }
-                        tokio::spawn(async move {
-                            // Perform the async operation outside the mutex lock
-                            reload_selected_channel(&app_arc_inner).await.unwrap();
-
-                            // Send signal
-                            tx_clone.send(()).unwrap();
-
-                            // Clear the info popup text
-                            {
-                                let mut app = app_arc_inner.lock().unwrap();
-                                app.info_popup_text = None;
-                            }
-                        });
                     }
                     //KeyCode::Char('s') | KeyCode::Char('S') => {
                     //    app.info_popup_text = Some("Saving config...".to_string());
@@ -261,23 +258,25 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app_arc: Arc<Mutex<App>
                 }
             }
         }
-        //check if timer  has expired
-        if let Ok(()) = rx.try_recv() {
-            info!("Received popup text!");
-            let mut app = app_arc.lock().unwrap();
-            // let mut app = app_arc.lock().unwrap();
-            app.info_popup_text = None;
-            info!("Cleared out popup text!")
+        match popup_rx.try_recv() {
+            Ok(()) => {
+                app.info_popup_text = None;
+                info!("Cleared out popup text!")
+            }
+            Err(_) => {}
         }
+        match channel_reload_rx.try_recv() {
+            Ok(Some(received_channel)) => {
+                info!("Received reloaded channel");
+                app.update_selected_channel(&received_channel);
+            }
+            Ok(None) | Err(_) => {}
+        }
+        //check if timer  has expired
 
         {
-            // let app = app_arc.lock().unwrap();
-
-            {
-                let app = app_arc.lock().unwrap();
-                if app.state == AppState::Stopped {
-                    return Ok(());
-                }
+            if app.state == AppState::Stopped {
+                return Ok(());
             }
         }
     }

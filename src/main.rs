@@ -97,6 +97,7 @@ async fn main() -> Result<()> {
     let mut channels = Vec::new();
     for url in args.urls.clone() {
         //this we should make async, so we can start up and it does it in the background...?
+        //answer...no
         if let Some(channel) = fetch_rss_feed(&url).await? {
             channels.push(channel);
         } else {
@@ -130,19 +131,7 @@ async fn main() -> Result<()> {
     }
 
     let mut app = App::from(channels);
-    let app_arc = Arc::new(Mutex::new(app));
-    run_app(&mut term, app_arc).await?;
-    // let result = reqwest::get(url).await?;
-    // println!("{:?}", result);
-    // let txt = result.text().await?;
-    //
-    // println!("Text: {}", txt);
-    //
-    // let mut de = serde_xml_rs::Deserializer::new_from_reader(txt.as_bytes())
-    //     .non_contiguous_seq_elements(true);
-    // let rss = Rss::deserialize(&mut de).unwrap();
-    // println!("Rss: {:?}", rss);
-    // restore_terminal(&mut term).context("Failed to restore terminal")?;
+    run_app(&mut term, &mut app).await?;
     restore_terminal().context("Failed to restore terminal")?;
     Ok(())
 }
