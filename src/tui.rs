@@ -225,35 +225,30 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                             let chnl_tx_clone = channel_reload_tx.clone();
                             let popup_tx_clone = popup_tx.clone();
                             app.info_popup_text = Some("Reloading...".to_string());
-                            // MutexGuard is dropped here when going out of scope
                             tokio::spawn(async move {
-                                // Send signal
-                                //wait 3s
                                 sleep(Duration::from_secs(3)).await;
 
                                 popup_tx_clone.send(()).await.unwrap();
                             });
                             tokio::spawn(async move {
-                                //reload_selected_channel(&app_arc_inner).await.unwrap();
                                 let reloaded_channel = load_channel(&url).await.unwrap();
-
-                                // Send signal
                                 chnl_tx_clone.send(reloaded_channel).await.unwrap();
                             });
                         }
                     }
-                    //KeyCode::Char('s') | KeyCode::Char('S') => {
-                    //    app.info_popup_text = Some("Saving config...".to_string());
-                    //    let tx = tx.clone();
-                    //    tokio::spawn(async move {
-                    //        save_into_config(app).await;
-                    //        tx.send(()).unwrap();
-                    //    });
-                    //}
-                    //KeyCode::Char('o') | KeyCode::Char('O') => {
-                    //    open_selected_link(app)?;
-                    //}
-                    //KeyCode::Tab => app.change_selected_pane(),
+                    KeyCode::Char('s') | KeyCode::Char('S') => {
+                        let popup_tx_clone = popup_tx.clone();
+                        app.info_popup_text = Some("Saving config...".to_string());
+                        tokio::spawn(async move {
+                            sleep(Duration::from_secs(3)).await;
+                            popup_tx_clone.send(()).await.unwrap();
+                        });
+                        save_into_config(app).await?;
+                    }
+                    KeyCode::Char('o') | KeyCode::Char('O') => {
+                        open_selected_link(app)?;
+                    }
+                    KeyCode::Tab => app.change_selected_pane(),
                     _ => {}
                 }
             }
