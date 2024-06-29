@@ -301,7 +301,6 @@ pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
-            app.construct_items = true;
         };
     }
     Ok(())
