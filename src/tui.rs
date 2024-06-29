@@ -1,5 +1,5 @@
 use log::{error, info};
-use scraper::Html;
+use scraper::{html, Html};
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
@@ -185,6 +185,8 @@ fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) ->
         .style(Style::default().fg(Color::Cyan));
     //let parsed_text = Html::parse_fragment(html_text);
     let parsed_text = html_escape::decode_html_entities(html_text);
+    let parsed_html = Html::parse_fragment(&parsed_text);
+
     //let item_content = Paragraph::new(html_text)
     let item_content = Paragraph::new(parsed_text)
         .wrap(Wrap { trim: true })
@@ -199,12 +201,10 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
     let (channel_reload_tx, mut channel_reload_rx) = mpsc::channel(1);
     let (popup_tx, mut popup_rx) = mpsc::channel(1);
     loop {
-        {
-            // let mut app = app_arc.lock().unwrap();
-            term.draw(|f| {
-                ui(f, app).expect("Could not draw the ui");
-            })?;
-        }
+        // let mut app = app_arc.lock().unwrap();
+        term.draw(|f| {
+            ui(f, app).expect("Could not draw the ui");
+        })?;
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 // let mut app = app_arc.lock().unwrap();
@@ -264,6 +264,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
             Ok(Some(received_channel)) => {
                 info!("Received reloaded channel");
                 app.update_selected_channel(&received_channel);
+                app.construct_items = true
             }
             Ok(None) | Err(_) => {}
         }

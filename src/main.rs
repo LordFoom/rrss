@@ -38,7 +38,7 @@ pub fn init_logging(verbose: bool) -> Result<()> {
     // let stdout = ConsoleAppender::builder().build();
 
     let lvl_filter = if verbose {
-        LevelFilter::Debug
+        LevelFilter::Info
     } else {
         LevelFilter::Warn
     };
