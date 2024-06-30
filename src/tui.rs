@@ -1,4 +1,5 @@
 use log::{error, info};
+use regex::Regex;
 use scraper::{html, Html};
 use std::{
     collections::HashMap,
@@ -185,8 +186,10 @@ fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) ->
         .style(Style::default().fg(Color::Cyan));
     //let parsed_text = Html::parse_fragment(html_text);
     let parsed_text = html_escape::decode_html_entities(html_text);
-    let parsed_html = Html::parse_fragment(&parsed_text);
 
+    //TODO Should this be initialized outside?
+    let regex = Regex::new("<.*>");
+    parsed_text.replace()
     //let item_content = Paragraph::new(html_text)
     let item_content = Paragraph::new(parsed_text)
         .wrap(Wrap { trim: true })
