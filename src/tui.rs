@@ -1,6 +1,5 @@
 use log::{error, info};
 use regex::Regex;
-use scraper::{html, Html};
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
@@ -188,10 +187,12 @@ fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) ->
     let parsed_text = html_escape::decode_html_entities(html_text);
 
     //TODO Should this be initialized outside?
-    let regex = Regex::new("<.*>");
-    parsed_text.replace()
+    let regex = Regex::new("<\\/?[a-z][a-z0-9]*[^<>]*>|<!--.*?-->")?;
+    let parsed_text_str = parsed_text.to_string();
+    let stripped_text = regex.replace_all(&parsed_text_str, "");
+    //let stripped_text = parsed_text_str;
     //let item_content = Paragraph::new(html_text)
-    let item_content = Paragraph::new(parsed_text)
+    let item_content = Paragraph::new(stripped_text)
         .wrap(Wrap { trim: true })
         .block(view_block);
     frame.render_widget(item_content, item_pane);
@@ -229,7 +230,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                             let popup_tx_clone = popup_tx.clone();
                             app.info_popup_text = Some("Reloading...".to_string());
                             tokio::spawn(async move {
-                                sleep(Duration::from_secs(3)).await;
+                                sleep(Duration::from_secs(POPUP_TIME)).await;
 
                                 popup_tx_clone.send(()).await.unwrap();
                             });
@@ -243,7 +244,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                         let popup_tx_clone = popup_tx.clone();
                         app.info_popup_text = Some("Saving config...".to_string());
                         tokio::spawn(async move {
-                            sleep(Duration::from_secs(3)).await;
+                            sleep(Duration::from_secs(POPUP_TIME)).await;
                             popup_tx_clone.send(()).await.unwrap();
                         });
                         save_into_config(app).await?;

@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::{ArgGroup, Parser};
