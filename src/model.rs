@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub enum AppState {
     #[default]
     Running,
+    AddChannel,
     Stopped,
 }
 

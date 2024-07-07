@@ -81,7 +81,7 @@ fn init_error_hooks() -> Result<()> {
     Ok(())
 }
 
-///TODO we open the link with [O]
+///TODO Add an rss file
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();

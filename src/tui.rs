@@ -78,12 +78,12 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let header = match app.selected_pane {
         SelectedPane::Channels => Paragraph::new(
             r"RRSS rss reader
-        [R]efresh channnel | [S]ave channels",
+        [R]efresh channnel | [S]ave channels | [A]dd channel",
         )
         .block(header_block),
         SelectedPane::Items => Paragraph::new(
             r"RRSS rss reader
-        [R]efresh channnel | [S]ave channels | [O]pen Item",
+        [R]efresh channnel | [S]ave channels | [A]dd channel | [O]pen Item",
         )
         .block(header_block),
     };
@@ -212,6 +212,9 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 // let mut app = app_arc.lock().unwrap();
+                //TODO wrap this in app.state.running, and we use App.state.AddChannel to capture
+                //keys for text field
+                //TODO abstract into function
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => {
                         app.state = AppState::Stopped;
@@ -252,6 +255,9 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                     KeyCode::Char('o') | KeyCode::Char('O') => {
                         open_selected_link(app)?;
                     }
+                    KeyCode::Char('a') | KeyCode::Char('A') => {
+                        app.show_add_channel_dialog()?;
+                    }
                     KeyCode::Tab => app.change_selected_pane(),
                     _ => {}
                 }
@@ -272,7 +278,6 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
             }
             Ok(None) | Err(_) => {}
         }
-        //check if timer  has expired
 
         {
             if app.state == AppState::Stopped {
