@@ -38,7 +38,8 @@ const NORMAL_ROW_COLOR: Color = tailwind::SLATE.c950;
 const ALT_ROW_COLOR: Color = tailwind::SLATE.c900;
 const SELECTED_STYLE_FG: Color = tailwind::BLUE.c300;
 const TEXT_COLOR: Color = tailwind::SLATE.c200;
-
+const HEADER_TEXT: &str = r"RRSS rss reader
+        [R]efresh channnel | [S]ave channels | [A]dd channel";
 pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
     let mut stdout = io::stdout();
     enable_raw_mode().context("Unable to enable raw mode")?;
@@ -76,16 +77,10 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         .style(Style::default().fg(Color::Rgb(212, 144, 29)));
 
     let header = match app.selected_pane {
-        SelectedPane::Channels => Paragraph::new(
-            r"RRSS rss reader
-        [R]efresh channnel | [S]ave channels | [A]dd channel",
-        )
-        .block(header_block),
-        SelectedPane::Items => Paragraph::new(
-            r"RRSS rss reader
-        [R]efresh channnel | [S]ave channels | [A]dd channel | [O]pen Item",
-        )
-        .block(header_block),
+        SelectedPane::Channels => Paragraph::new(HEADER_TEXT).block(header_block),
+        SelectedPane::Items => {
+            Paragraph::new(format!("{}{}", HEADER_TEXT, " | [O]pen Item")).block(header_block)
+        }
     };
     frame.render_widget(header, top);
 
@@ -214,7 +209,6 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                 // let mut app = app_arc.lock().unwrap();
                 //TODO wrap this in app.state.running, and we use App.state.AddChannel to capture
                 //keys for text field
-                //TODO abstract into function
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => {
                         app.state = AppState::Stopped;
@@ -256,7 +250,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                         open_selected_link(app)?;
                     }
                     KeyCode::Char('a') | KeyCode::Char('A') => {
-                        app.show_add_channel_dialog()?;
+                        app.show_add_channel_dialog();
                     }
                     KeyCode::Tab => app.change_selected_pane(),
                     _ => {}
