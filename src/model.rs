@@ -196,6 +196,10 @@ impl App {
             "Nothing to display".to_string()
         }
     }
+
+    pub fn show_add_channel_dialog(&mut self) {
+        self.state = AppState::AddChannel
+    }
 }
 
 #[derive(Default, Clone)]
