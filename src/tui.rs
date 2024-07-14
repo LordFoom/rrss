@@ -95,8 +95,14 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         show_info_popup(&text, frame);
     }
 
+    if app.state == AppState::AddChannel {
+        show_add_channel_dialog(frame, &mut app)
+    }
+
     Ok(())
 }
+
+fn show_add_channel_dialog(frame: &mut Frame, app: &mut App) {}
 
 ///Show the channels we are monitoring in their pane
 fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Result<()> {
