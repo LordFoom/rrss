@@ -23,5 +23,6 @@ serde = { version = "1.0.197", features = ["derive"] }
 serde-xml-rs = "0.6.0"
 tokio = { version = "1.37.0", features = ["full"] }
 toml = "0.8.13"
+tui-textarea = "0.5.1"
 
 
