@@ -102,8 +102,6 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     Ok(())
 }
 
-fn show_add_channel_dialog(frame: &mut Frame, app: &mut App) {}
-
 ///Show the channels we are monitoring in their pane
 fn display_channels(frame: &mut Frame, app: &mut App, channel_pane: Rect) -> Result<()> {
     let bt = get_border_type(app.selected_pane == SelectedPane::Channels);
@@ -335,6 +333,15 @@ pub async fn save_into_config(app: &mut App) -> Result<()> {
     Ok(())
 }
 
+fn show_add_channel_dialog(frame: &mut Frame, app: &mut App) {
+    let add_channel_dialog = Block::new()
+        .style(Style::default().fg(Color::Rgb(147, 204, 234)))
+        .borders(Borders::all())
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(Color::Rgb(147, 204, 234)));
+}
+
+///Display an info popup with the given text
 pub fn show_info_popup(txt: &str, f: &mut Frame) {
     let popup_block = Block::new()
         .style(Style::default().fg(Color::Rgb(190, 147, 228)))
