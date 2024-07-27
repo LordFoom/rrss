@@ -31,6 +31,7 @@ struct Args {
     file: Option<String>,
 }
 
+///TODO add a status line
 ///Set up logging to the file, if enabled
 pub fn init_logging(verbose: bool) -> Result<()> {
     // let stdout = ConsoleAppender::builder().build();

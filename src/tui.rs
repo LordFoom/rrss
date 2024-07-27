@@ -7,6 +7,7 @@ use std::{
     time::Duration,
 };
 use tokio::{sync::mpsc, time::sleep};
+use tui_textarea::TextArea;
 
 use anyhow::{Context, Result};
 use crossterm::{
@@ -96,7 +97,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     }
 
     if app.state == AppState::AddChannel {
-        show_add_channel_dialog(frame, &mut app)
+        show_add_channel_dialog(frame, app)
     }
 
     Ok(())
@@ -208,10 +209,15 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         term.draw(|f| {
             ui(f, app).expect("Could not draw the ui");
         })?;
+        //TODO let us extract this into a read keys method
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 // let mut app = app_arc.lock().unwrap();
                 //TODO wrap this in app.state.running, and we use App.state.AddChannel to capture
+
+                match app.state{//going to leave this broken as a placeholder
+                    AppState::Running
+                }
                 //keys for text field
                 match key.code {
                     KeyCode::Char('q') | KeyCode::Char('Q') => {
@@ -333,12 +339,17 @@ pub async fn save_into_config(app: &mut App) -> Result<()> {
     Ok(())
 }
 
-fn show_add_channel_dialog(frame: &mut Frame, app: &mut App) {
-    let add_channel_dialog = Block::new()
+fn show_add_channel_dialog(f: &mut Frame, app: &mut App) {
+    let add_channel_block = Block::new()
         .style(Style::default().fg(Color::Rgb(147, 204, 234)))
+        .title("Add Channel")
         .borders(Borders::all())
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(Color::Rgb(147, 204, 234)));
+
+    let rectangle = centered_rect(160, 20, f.size());
+    let mut add_channel_txt_field = TextArea::default();
+    add_channel_txt_field.set_block(add_channel_block);
 }
 
 ///Display an info popup with the given text

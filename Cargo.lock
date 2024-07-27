@@ -698,12 +698,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indoc"
-version = "2.0.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
-
-[[package]]
 name = "ipnet"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -726,15 +720,6 @@ checksum = "173609498df190136aa7dea1a91db051746d339e18476eed5ca40521f02d7aa5"
 dependencies = [
  "is-docker",
  "once_cell",
-]
-
-[[package]]
-name = "itertools"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
-dependencies = [
- "either",
 ]
 
 [[package]]
@@ -1131,26 +1116,6 @@ dependencies = [
 
 [[package]]
 name = "ratatui"
-version = "0.26.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a564a852040e82671dc50a37d88f3aa83bbc690dfc6844cfe7a2591620206a80"
-dependencies = [
- "bitflags 2.5.0",
- "cassowary",
- "compact_str",
- "crossterm",
- "indoc",
- "itertools 0.12.1",
- "lru",
- "paste",
- "stability",
- "strum",
- "unicode-segmentation",
- "unicode-width",
-]
-
-[[package]]
-name = "ratatui"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d16546c5b5962abf8ce6e2881e722b4e0ae3b6f1a08a26ae3573c55853ca68d3"
@@ -1159,7 +1124,7 @@ dependencies = [
  "cassowary",
  "compact_str",
  "crossterm",
- "itertools 0.13.0",
+ "itertools",
  "lru",
  "paste",
  "stability",
@@ -1263,7 +1228,7 @@ dependencies = [
  "log",
  "log4rs",
  "open",
- "ratatui 0.26.2",
+ "ratatui",
  "regex",
  "reqwest",
  "serde",
@@ -1840,7 +1805,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a13589ef83273780b53a0e0be49282cb5d9cc10727b6c580e8f11366ccb460c"
 dependencies = [
  "crossterm",
- "ratatui 0.27.0",
+ "ratatui",
  "unicode-width",
 ]
 
@@ -1886,7 +1851,7 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3644627a5af5fa321c95b9b235a72fd24cd29c648c2c379431e6628655627bf"
 dependencies = [
- "itertools 0.13.0",
+ "itertools",
  "unicode-segmentation",
  "unicode-width",
 ]
