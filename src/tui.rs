@@ -212,59 +212,62 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         //TODO let us extract this into a read keys method
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
+                match app.state {
+                    AppState::AddChannel => todo!(),
+                    AppState::Running => {
+                        match key.code {
+                            KeyCode::Char('q') | KeyCode::Char('Q') => {
+                                app.state = AppState::Stopped;
+                            }
+                            //todo differentiate between the different selected states
+                            KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => {
+                                app.select_down();
+                            }
+                            KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => {
+                                app.select_up();
+                            }
+                            KeyCode::Char('r') | KeyCode::Char('R') => {
+                                if let Some(channel) = app.get_selected_channel() {
+                                    let url = channel.get_link();
+                                    let chnl_tx_clone = channel_reload_tx.clone();
+                                    let popup_tx_clone = popup_tx.clone();
+                                    app.info_popup_text = Some("Reloading...".to_string());
+                                    tokio::spawn(async move {
+                                        sleep(Duration::from_secs(POPUP_TIME)).await;
+
+                                        popup_tx_clone.send(()).await.unwrap();
+                                    });
+                                    tokio::spawn(async move {
+                                        let reloaded_channel = load_channel(&url).await.unwrap();
+                                        chnl_tx_clone.send(reloaded_channel).await.unwrap();
+                                    });
+                                }
+                            }
+                            KeyCode::Char('s') | KeyCode::Char('S') => {
+                                let popup_tx_clone = popup_tx.clone();
+                                app.info_popup_text = Some("Saving config...".to_string());
+                                tokio::spawn(async move {
+                                    sleep(Duration::from_secs(POPUP_TIME)).await;
+                                    popup_tx_clone.send(()).await.unwrap();
+                                });
+                                save_into_config(app).await?;
+                            }
+                            KeyCode::Char('o') | KeyCode::Char('O') => {
+                                open_selected_link(app)?;
+                            }
+                            KeyCode::Char('a') | KeyCode::Char('A') => {
+                                app.show_add_channel_dialog();
+                            }
+                            KeyCode::Tab => app.change_selected_pane(),
+                            _ => {}
+                        }
+                    }
+                    AppState::Stopped => todo!(),
+                }
                 // let mut app = app_arc.lock().unwrap();
                 //TODO wrap this in app.state.running, and we use App.state.AddChannel to capture
 
-                match app.state{//going to leave this broken as a placeholder
-                    AppState::Running
-                }
                 //keys for text field
-                match key.code {
-                    KeyCode::Char('q') | KeyCode::Char('Q') => {
-                        app.state = AppState::Stopped;
-                    }
-                    //todo differentiate between the different selected states
-                    KeyCode::Char('j') | KeyCode::Char('J') | KeyCode::Down => {
-                        app.select_down();
-                    }
-                    KeyCode::Char('k') | KeyCode::Char('K') | KeyCode::Up => {
-                        app.select_up();
-                    }
-                    KeyCode::Char('r') | KeyCode::Char('R') => {
-                        if let Some(channel) = app.get_selected_channel() {
-                            let url = channel.get_link();
-                            let chnl_tx_clone = channel_reload_tx.clone();
-                            let popup_tx_clone = popup_tx.clone();
-                            app.info_popup_text = Some("Reloading...".to_string());
-                            tokio::spawn(async move {
-                                sleep(Duration::from_secs(POPUP_TIME)).await;
-
-                                popup_tx_clone.send(()).await.unwrap();
-                            });
-                            tokio::spawn(async move {
-                                let reloaded_channel = load_channel(&url).await.unwrap();
-                                chnl_tx_clone.send(reloaded_channel).await.unwrap();
-                            });
-                        }
-                    }
-                    KeyCode::Char('s') | KeyCode::Char('S') => {
-                        let popup_tx_clone = popup_tx.clone();
-                        app.info_popup_text = Some("Saving config...".to_string());
-                        tokio::spawn(async move {
-                            sleep(Duration::from_secs(POPUP_TIME)).await;
-                            popup_tx_clone.send(()).await.unwrap();
-                        });
-                        save_into_config(app).await?;
-                    }
-                    KeyCode::Char('o') | KeyCode::Char('O') => {
-                        open_selected_link(app)?;
-                    }
-                    KeyCode::Char('a') | KeyCode::Char('A') => {
-                        app.show_add_channel_dialog();
-                    }
-                    KeyCode::Tab => app.change_selected_pane(),
-                    _ => {}
-                }
             }
         }
         match popup_rx.try_recv() {
@@ -289,6 +292,12 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
             }
         }
     }
+}
+
+///TODO refactor the above into this method....
+///Get the input from the player, depending on what state the app is
+pub async fn read_keys<B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) -> Result<()> {
+    Ok(())
 }
 
 pub fn open_selected_link(app: &App) -> Result<()> {

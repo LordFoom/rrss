@@ -1,6 +1,7 @@
 use log::info;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
+use tui_textarea::TextArea;
 
 #[derive(PartialEq, Eq, Default, Clone)]
 pub enum AppState {
@@ -18,7 +19,7 @@ pub enum SelectedPane {
 }
 
 #[derive(Default, Clone)]
-pub struct App {
+pub struct App<'a> {
     pub channels: StatefulChannelList,
     pub current_items: StatefulItemList,
     pub state: AppState,
@@ -26,9 +27,10 @@ pub struct App {
     pub construct_items: bool,
     ///When this is set, display the text in an info popup until unset
     pub info_popup_text: Option<String>,
+    pub add_channel_text_area: TextArea<'a>,
 }
 
-impl App {
+impl<'a> App<'a> {
     pub fn from(channels_vec: Vec<Channel>) -> Self {
         let channels = StatefulChannelList {
             state: ListState::default().with_offset(0),
@@ -42,6 +44,7 @@ impl App {
             selected_pane: SelectedPane::Channels,
             construct_items: true,
             info_popup_text: None,
+            add_channel_text_area: TextArea::default(),
         }
     }
 
