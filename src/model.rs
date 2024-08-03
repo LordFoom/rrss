@@ -203,6 +203,10 @@ impl<'a> App<'a> {
     pub fn show_add_channel_dialog(&mut self) {
         self.state = AppState::AddChannel
     }
+
+    pub fn unshow_add_channel_dialog(&mut self) {
+        self.state = AppState::Running
+    }
 }
 
 #[derive(Default, Clone)]

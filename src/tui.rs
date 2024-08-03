@@ -200,7 +200,7 @@ fn display_selected_item(frame: &mut Frame, html_text: &str, item_pane: Rect) ->
 }
 
 ///Run run run the app merrily down the bitstream
-pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Result<()> {
+pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) -> Result<()> {
     // let app_arc = Arc::new(Mutex::new(app));
     let (channel_reload_tx, mut channel_reload_rx) = mpsc::channel(1);
     let (popup_tx, mut popup_rx) = mpsc::channel(1);
@@ -213,7 +213,13 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 match app.state {
-                    AppState::AddChannel => todo!(),
+                    AppState::AddChannel => {
+                        if key.code == KeyCode::Esc {
+                            app.unshow_add_channel_dialog();
+                        } else {
+                            app.add_channel_text_area.input(key);
+                        }
+                    }
                     AppState::Running => {
                         match key.code {
                             KeyCode::Char('q') | KeyCode::Char('Q') => {
@@ -270,12 +276,9 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
                 //keys for text field
             }
         }
-        match popup_rx.try_recv() {
-            Ok(()) => {
-                app.info_popup_text = None;
-                info!("Cleared out popup text!")
-            }
-            Err(_) => {}
+        if let Ok(()) = popup_rx.try_recv() {
+            app.info_popup_text = None;
+            info!("Cleared out popup text!")
         }
         match channel_reload_rx.try_recv() {
             Ok(Some(received_channel)) => {
@@ -296,7 +299,7 @@ pub async fn run_app<B: Backend>(term: &mut Terminal<B>, app: &mut App) -> Resul
 
 ///TODO refactor the above into this method....
 ///Get the input from the player, depending on what state the app is
-pub async fn read_keys<B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) -> Result<()> {
+pub async fn read_keys<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) -> Result<()> {
     Ok(())
 }
 
@@ -319,7 +322,7 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 }
 
 ///Deprecated, we should be a bit more shall we say, functional
-pub async fn reload_selected_channel(app: &mut App) -> Result<()> {
+pub async fn reload_selected_channel<'a>(app: &mut App<'a>) -> Result<()> {
     if let Some(selected_channel) = app.get_selected_channel() {
         if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
             app.update_selected_channel(&channel);
@@ -336,7 +339,7 @@ pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
     }
 }
 
-pub async fn save_into_config(app: &mut App) -> Result<()> {
+pub async fn save_into_config<'a>(app: &mut App<'a>) -> Result<()> {
     app.info_popup_text = Some("Saving config...".to_string());
     let mut channels = HashMap::new();
     for channel in app.channels.channels.clone() {
@@ -356,9 +359,10 @@ fn show_add_channel_dialog(f: &mut Frame, app: &mut App) {
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(Color::Rgb(147, 204, 234)));
 
-    let rectangle = centered_rect(160, 20, f.size());
-    let mut add_channel_txt_field = TextArea::default();
+    let rectangle = centered_rect(60, 20, f.size());
+    let mut add_channel_txt_field = app.add_channel_text_area.clone();
     add_channel_txt_field.set_block(add_channel_block);
+    f.render_widget(add_channel_txt_field.widget(), rectangle);
 }
 
 ///Display an info popup with the given text
