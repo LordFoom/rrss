@@ -207,6 +207,12 @@ impl<'a> App<'a> {
     pub fn unshow_add_channel_dialog(&mut self) {
         self.state = AppState::Running
     }
+
+    ///Add the text in dialog as a channel
+    pub fn add_channel(&mut self) {
+        //expect a single line
+        let hopefully_a_channel = self.add_channel_text_area.lines()[0];
+    }
 }
 
 #[derive(Default, Clone)]

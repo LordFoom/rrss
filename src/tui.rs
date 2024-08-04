@@ -214,10 +214,18 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
             if let Event::Key(key) = event::read()? {
                 match app.state {
                     AppState::AddChannel => {
-                        if key.code == KeyCode::Esc {
-                            app.unshow_add_channel_dialog();
-                        } else {
-                            app.add_channel_text_area.input(key);
+                        match key.code {
+                            KeyCode::Esc => {
+                                app.unshow_add_channel_dialog();
+                            }
+                            KeyCode::Enter => {
+                                //this method will add the channel from the textarea,
+                                //and then
+                                app.add_channel();
+                            }
+                            _ => {
+                                app.add_channel_text_area.input(key);
+                            }
                         }
                     }
                     AppState::Running => {
