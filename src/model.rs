@@ -211,7 +211,20 @@ impl<'a> App<'a> {
     ///Add the text in dialog as a channel
     pub fn add_channel(&mut self) {
         //expect a single line
-        let hopefully_a_channel = self.add_channel_text_area.lines()[0];
+        let hopefully_a_channel = self.add_channel_text_area.lines()[0].clone();
+        if hopefully_a_channel.is_empty() {
+            return;
+        }
+        let channel_to_add = Channel {
+            title: hopefully_a_channel,
+            ..Default::default()
+        };
+        self.channels.channels.push(channel_to_add);
+        self.add_channel_text_area
+            .move_cursor(tui_textarea::CursorMove::End);
+        self.add_channel_text_area.delete_line_by_head();
+        //we no longer wish to display the textarea
+        self.state = AppState::Running;
     }
 }
 

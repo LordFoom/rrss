@@ -119,6 +119,7 @@ async fn main() -> Result<()> {
                         title: channel_name,
                         ..Default::default()
                     };
+                    //use set_link because the weird rss format means we serialize into a vec
                     channel.set_link(&channel_url);
                     channel
                 })
