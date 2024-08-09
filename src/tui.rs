@@ -1,3 +1,4 @@
+use clipboard::ClipboardProvider;
 use log::{error, info};
 use regex::Regex;
 use std::{
@@ -11,7 +12,7 @@ use tui_textarea::TextArea;
 
 use anyhow::{Context, Result};
 use crossterm::{
-    event::{self, EnableMouseCapture, Event, KeyCode},
+    event::{self, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
@@ -222,6 +223,11 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                 //this method will add the channel from the textarea,
                                 //and then
                                 app.add_channel();
+                            }
+                            KeyCode::Char('v') | KeyCode::Char('V') => {
+                                if KeyModifiers::CONTROL == key.modifiers {
+                                    let cp = ClipboardProvider::new().unwrap();
+                                }
                             }
                             _ => {
                                 app.add_channel_text_area.input(key);
