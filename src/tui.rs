@@ -1,4 +1,4 @@
-use clipboard::ClipboardProvider;
+use clipboard::{ClipboardContext, ClipboardProvider};
 use log::{error, info};
 use regex::Regex;
 use std::{
@@ -226,7 +226,10 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             }
                             KeyCode::Char('v') | KeyCode::Char('V') => {
                                 if KeyModifiers::CONTROL == key.modifiers {
-                                    let cp = ClipboardProvider::new().unwrap();
+                                    let mut clip: ClipboardContext =
+                                        ClipboardProvider::new().unwrap();
+                                    let contents = clip.get_contents().unwrap();
+                                    app.set_add_channel_contents(&contents);
                                 }
                             }
                             _ => {

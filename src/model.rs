@@ -226,6 +226,10 @@ impl<'a> App<'a> {
         //we no longer wish to display the textarea
         self.state = AppState::Running;
     }
+
+    pub fn set_add_channel_contents(&mut self, contents: &str) {
+        self.add_channel_text_area.insert_str(contents);
+    }
 }
 
 #[derive(Default, Clone)]
