@@ -257,12 +257,20 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                     app.info_popup_text = Some("Reloading...".to_string());
                                     tokio::spawn(async move {
                                         sleep(Duration::from_secs(POPUP_TIME)).await;
-
                                         popup_tx_clone.send(()).await.unwrap();
                                     });
                                     tokio::spawn(async move {
-                                        let reloaded_channel = load_channel(&url).await.unwrap();
-                                        chnl_tx_clone.send(reloaded_channel).await.unwrap();
+                                        match load_channel(&url).await {
+                                            Ok(reloaded_channel) => chnl_tx_clone
+                                                .send(Ok(reloaded_channel))
+                                                .await
+                                                .unwrap(),
+                                            Err(why) => {
+                                                //this will not work, will need to use the
+                                                //channel to send daa
+                                                chnl_tx_clone.send(Err(why)).await.unwrap();
+                                            }
+                                        }
                                     });
                                 }
                             }
@@ -298,12 +306,15 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
             info!("Cleared out popup text!")
         }
         match channel_reload_rx.try_recv() {
-            Ok(Some(received_channel)) => {
+            Ok(Ok(received_channel)) => {
                 info!("Received reloaded channel");
                 app.update_selected_channel(&received_channel);
                 app.construct_items = true
             }
-            Ok(None) | Err(_) => {}
+            Ok(Err(why)) = > {
+
+            }
+                Err(_) => {}
         }
 
         {
