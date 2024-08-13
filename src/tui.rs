@@ -261,16 +261,20 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                     });
                                     tokio::spawn(async move {
                                         match load_channel(&url).await {
-                                            Ok(reloaded_channel) => chnl_tx_clone
-                                                .send(Ok(reloaded_channel))
-                                                .await
-                                                .unwrap(),
-                                            Err(why) => {
-                                                //this will not work, will need to use the
-                                                //channel to send daa
-                                                chnl_tx_clone.send(Err(why)).await.unwrap();
+                                            Ok(maybe_reloaded_channel) => {
+                                                match maybe_reloaded_channel {
+                                                    Some(reloaded_channel) => chnl_tx_clone
+                                                        .send(Ok(reloaded_channel))
+                                                        .await
+                                                        .unwrap(),
+                                                    //we do nothing if we do not get anything back
+                                                    None => {}
+                                                }
                                             }
+                                            Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
                                         }
+                                        // let reloaded_channel = load_channel(&url).await.unwrap();
+                                        // chnl_tx_clone.send(reloaded_channel).await.unwrap();
                                     });
                                 }
                             }
@@ -301,20 +305,35 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                 //keys for text field
             }
         }
+        match channel_reload_rx.try_recv() {
+            Ok(maybe_received_channel) => match maybe_received_channel {
+                Ok(received_channel) => {
+                    info!("Received reloaded channel");
+                    app.update_selected_channel(&received_channel);
+                    app.construct_items = true
+                }
+                Err(why) => {
+                    let popup_tx_clone = popup_tx.clone();
+                    app.info_popup_text = Some(format!("ERROR! {why}"));
+                    tokio::spawn(async move {
+                        sleep(Duration::from_secs(POPUP_TIME)).await;
+                        popup_tx_clone.send(()).await.unwrap();
+                    });
+                }
+            },
+            Err(why) => {
+                let popup_tx_clone = popup_tx.clone();
+                app.info_popup_text = Some(format!("{why}"));
+                tokio::spawn(async move {
+                    sleep(Duration::from_secs(POPUP_TIME)).await;
+                    popup_tx_clone.send(()).await.unwrap();
+                });
+            }
+        }
+
         if let Ok(()) = popup_rx.try_recv() {
             app.info_popup_text = None;
             info!("Cleared out popup text!")
-        }
-        match channel_reload_rx.try_recv() {
-            Ok(Ok(received_channel)) => {
-                info!("Received reloaded channel");
-                app.update_selected_channel(&received_channel);
-                app.construct_items = true
-            }
-            Ok(Err(why)) = > {
-
-            }
-                Err(_) => {}
         }
 
         {
