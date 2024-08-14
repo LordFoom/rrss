@@ -23,7 +23,7 @@ use ratatui::{
     layout::{Constraint, Layout},
     prelude::*,
     style::palette::tailwind,
-    widgets::{Block, BorderType, Borders, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, BorderType, Borders, Clear, List, ListItem, Paragraph, Wrap},
     Frame, Terminal,
 };
 
@@ -321,14 +321,8 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                     });
                 }
             },
-            Err(why) => {
-                let popup_tx_clone = popup_tx.clone();
-                app.info_popup_text = Some(format!("{why}"));
-                tokio::spawn(async move {
-                    sleep(Duration::from_secs(POPUP_TIME)).await;
-                    popup_tx_clone.send(()).await.unwrap();
-                });
-            }
+            //we suppress weird little errors here
+            Err(_) => {}
         }
 
         if let Ok(()) = popup_rx.try_recv() {
@@ -406,9 +400,10 @@ fn show_add_channel_dialog(f: &mut Frame, app: &mut App) {
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(Color::Rgb(147, 204, 234)));
 
-    let rectangle = centered_rect(60, 20, f.size());
+    let rectangle = centered_rect(80, 10, f.size());
     let mut add_channel_txt_field = app.add_channel_text_area.clone();
     add_channel_txt_field.set_block(add_channel_block);
+    f.render_widget(Clear, rectangle);
     f.render_widget(add_channel_txt_field.widget(), rectangle);
 }
 
@@ -419,8 +414,11 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
         .borders(Borders::all())
         .border_type(BorderType::Double)
         .border_style(Style::default().fg(Color::Rgb(191, 0, 255)));
-    let popup_paragraph = Paragraph::new(txt).block(popup_block);
-    let centered_pane = centered_rect(20, 20, f.size());
+    let popup_paragraph = Paragraph::new(txt)
+        .block(popup_block)
+        .wrap(Wrap { trim: true });
+    let centered_pane = centered_rect(80, 10, f.size());
+    f.render_widget(Clear, centered_pane);
     f.render_widget(popup_paragraph, centered_pane);
 }
 
