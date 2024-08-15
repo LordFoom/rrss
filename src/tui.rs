@@ -251,6 +251,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             KeyCode::Char('r') | KeyCode::Char('R') => {
                                 if let Some(channel) = app.get_selected_channel() {
                                     let url = channel.get_link();
+                                    info!("The url we want to get is: {}", url);
                                     let chnl_tx_clone = channel_reload_tx.clone();
                                     let popup_tx_clone = popup_tx.clone();
                                     app.info_popup_text = Some("Reloading...".to_string());
@@ -272,8 +273,6 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                             }
                                             Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
                                         }
-                                        // let reloaded_channel = load_channel(&url).await.unwrap();
-                                        // chnl_tx_clone.send(reloaded_channel).await.unwrap();
                                     });
                                 }
                             }
@@ -296,12 +295,8 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             _ => {}
                         }
                     }
-                    AppState::Stopped => todo!(),
+                    _ => {}
                 }
-                // let mut app = app_arc.lock().unwrap();
-                //TODO wrap this in app.state.running, and we use App.state.AddChannel to capture
-
-                //keys for text field
             }
         }
         if let Ok(maybe_received_channel) = channel_reload_rx.try_recv() {

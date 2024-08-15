@@ -1,7 +1,7 @@
 use log::info;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
-use tui_textarea::TextArea;
+use tui_textarea::{CursorMove, TextArea};
 
 #[derive(PartialEq, Eq, Default, Clone)]
 pub enum AppState {
@@ -205,6 +205,7 @@ impl<'a> App<'a> {
     }
 
     pub fn unshow_add_channel_dialog(&mut self) {
+        self.clear_add_channel_text_area();
         self.state = AppState::Running
     }
 
@@ -220,15 +221,27 @@ impl<'a> App<'a> {
             ..Default::default()
         };
         self.channels.channels.push(channel_to_add);
-        self.add_channel_text_area
-            .move_cursor(tui_textarea::CursorMove::End);
-        self.add_channel_text_area.delete_line_by_head();
+        self.clear_add_channel_text_area();
         //we no longer wish to display the textarea
         self.state = AppState::Running;
     }
 
     pub fn set_add_channel_contents(&mut self, contents: &str) {
         self.add_channel_text_area.insert_str(contents);
+    }
+
+    pub fn clear_add_channel_text_area(&mut self) {
+        self.add_channel_text_area.move_cursor(CursorMove::Head);
+        while self.add_channel_text_area.delete_line_by_end() {
+            self.add_channel_text_area
+                .move_cursor(tui_textarea::CursorMove::Head);
+        }
+        self.add_channel_text_area.move_cursor(CursorMove::End);
+
+        while self.add_channel_text_area.delete_line_by_head() {
+            self.add_channel_text_area
+                .move_cursor(tui_textarea::CursorMove::End);
+        }
     }
 }
 
