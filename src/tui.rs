@@ -1,5 +1,5 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use log::{error, info};
+use log::info;
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -8,7 +8,6 @@ use std::{
     time::Duration,
 };
 use tokio::{sync::mpsc, time::sleep};
-use tui_textarea::TextArea;
 
 use anyhow::{Context, Result};
 use crossterm::{
@@ -262,13 +261,13 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                     tokio::spawn(async move {
                                         match load_channel(&url).await {
                                             Ok(maybe_reloaded_channel) => {
-                                                match maybe_reloaded_channel {
-                                                    Some(reloaded_channel) => chnl_tx_clone
+                                                if let Some(reloaded_channel) =
+                                                    maybe_reloaded_channel
+                                                {
+                                                    chnl_tx_clone
                                                         .send(Ok(reloaded_channel))
                                                         .await
-                                                        .unwrap(),
-                                                    //we do nothing if we do not get anything back
-                                                    None => {}
+                                                        .unwrap()
                                                 }
                                             }
                                             Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
@@ -305,8 +304,8 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                 //keys for text field
             }
         }
-        match channel_reload_rx.try_recv() {
-            Ok(maybe_received_channel) => match maybe_received_channel {
+        if let Ok(maybe_received_channel) = channel_reload_rx.try_recv() {
+            match maybe_received_channel {
                 Ok(received_channel) => {
                     info!("Received reloaded channel");
                     app.update_selected_channel(&received_channel);
@@ -320,10 +319,9 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                         popup_tx_clone.send(()).await.unwrap();
                     });
                 }
-            },
-            //we suppress weird little errors here
-            Err(_) => {}
-        }
+            }
+        };
+        //we suppress weird little errors here
 
         if let Ok(()) = popup_rx.try_recv() {
             app.info_popup_text = None;
