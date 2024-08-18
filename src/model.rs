@@ -216,8 +216,14 @@ impl<'a> App<'a> {
         if hopefully_a_channel.is_empty() {
             return;
         }
+        let link = ChannelLink {
+            href: Some(hopefully_a_channel.clone()),
+            value: None,
+        };
+        let link = vec![link];
         let channel_to_add = Channel {
             title: hopefully_a_channel,
+            link,
             ..Default::default()
         };
         self.channels.channels.push(channel_to_add);
