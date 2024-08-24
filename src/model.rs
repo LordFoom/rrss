@@ -210,17 +210,17 @@ impl<'a> App<'a> {
     }
 
     ///Add the text in dialog as a channel
-    pub fn add_channel(&mut self) {
+    pub fn add_channel(&mut self) -> Option<String> {
         //expect a single line
         let hopefully_a_channel = self.add_channel_text_area.lines()[0].clone();
         if hopefully_a_channel.is_empty() {
-            return;
+            return None;
         }
-        let link = ChannelLink {
+        let channel_link = ChannelLink {
             href: Some(hopefully_a_channel.clone()),
             value: None,
         };
-        let link = vec![link];
+        let link = vec![channel_link.clone()];
         let channel_to_add = Channel {
             title: hopefully_a_channel,
             link,
@@ -230,6 +230,7 @@ impl<'a> App<'a> {
         self.clear_add_channel_text_area();
         //we no longer wish to display the textarea
         self.state = AppState::Running;
+        channel_link.href
     }
 
     pub fn set_add_channel_contents(&mut self, contents: &str) {

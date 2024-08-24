@@ -221,7 +221,30 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             KeyCode::Enter => {
                                 //this method will add the channel from the textarea,
                                 //and then
-                                app.add_channel();
+                                if let Some(url) = app.add_channel() {
+                                    let (chnl_tx_clone, popup_tx_clone) =
+                                        (channel_reload_tx.clone(), popup_tx.clone());
+                                    app.info_popup_text = Some("Attempting load...".to_string());
+                                    tokio::spawn(async move {
+                                        sleep(Duration::from_secs(POPUP_TIME)).await;
+                                        popup_tx_clone.send(()).await.unwrap();
+                                    });
+                                    tokio::spawn(async move {
+                                        match load_channel(&url).await {
+                                            Ok(maybe_reloaded_channel) => {
+                                                if let Some(reloaded_channel) =
+                                                    maybe_reloaded_channel
+                                                {
+                                                    chnl_tx_clone
+                                                        .send(Ok(reloaded_channel))
+                                                        .await
+                                                        .unwrap()
+                                                }
+                                            }
+                                            Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
+                                        }
+                                    });
+                                }
                             }
                             KeyCode::Char('v') | KeyCode::Char('V') => {
                                 if KeyModifiers::CONTROL == key.modifiers {
