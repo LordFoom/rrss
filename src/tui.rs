@@ -213,52 +213,49 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
         if event::poll(Duration::from_millis(100))? {
             if let Event::Key(key) = event::read()? {
                 match app.state {
-                    AppState::AddChannel => {
-                        match key.code {
-                            KeyCode::Esc => {
-                                app.unshow_add_channel_dialog();
-                            }
-                            KeyCode::Enter => {
-                                //this method will add the channel from the textarea,
-                                //and then
-                                if let Some(url) = app.add_channel() {
-                                    let (chnl_tx_clone, popup_tx_clone) =
-                                        (channel_reload_tx.clone(), popup_tx.clone());
-                                    app.info_popup_text = Some("Attempting load...".to_string());
-                                    tokio::spawn(async move {
-                                        sleep(Duration::from_secs(POPUP_TIME)).await;
-                                        popup_tx_clone.send(()).await.unwrap();
-                                    });
-                                    tokio::spawn(async move {
-                                        match load_channel(&url).await {
-                                            Ok(maybe_reloaded_channel) => {
-                                                if let Some(reloaded_channel) =
-                                                    maybe_reloaded_channel
-                                                {
-                                                    chnl_tx_clone
-                                                        .send(Ok(reloaded_channel))
-                                                        .await
-                                                        .unwrap()
-                                                }
+                    AppState::AddChannel => match key.code {
+                        KeyCode::Esc => {
+                            app.unshow_add_channel_dialog();
+                        }
+                        KeyCode::Enter => {
+                            //found text in the text area
+                            if let Some(url) = app.add_channel() {
+                                //get our thread clones
+                                let (chnl_tx_clone, popup_tx_clone) =
+                                    (channel_reload_tx.clone(), popup_tx.clone());
+
+                                app.info_popup_text = Some("Attempting load...".to_string());
+                                tokio::spawn(async move {
+                                    sleep(Duration::from_secs(POPUP_TIME)).await;
+                                    popup_tx_clone.send(()).await.unwrap();
+                                });
+
+                                tokio::spawn(async move {
+                                    match load_channel(&url).await {
+                                        Ok(maybe_reloaded_channel) => {
+                                            if let Some(reloaded_channel) = maybe_reloaded_channel {
+                                                chnl_tx_clone
+                                                    .send(Ok(reloaded_channel))
+                                                    .await
+                                                    .unwrap()
                                             }
-                                            Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
                                         }
-                                    });
-                                }
-                            }
-                            KeyCode::Char('v') | KeyCode::Char('V') => {
-                                if KeyModifiers::CONTROL == key.modifiers {
-                                    let mut clip: ClipboardContext =
-                                        ClipboardProvider::new().unwrap();
-                                    let contents = clip.get_contents().unwrap();
-                                    app.set_add_channel_contents(&contents);
-                                }
-                            }
-                            _ => {
-                                app.add_channel_text_area.input(key);
+                                        Err(why) => chnl_tx_clone.send(Err(why)).await.unwrap(),
+                                    }
+                                });
                             }
                         }
-                    }
+                        KeyCode::Char('v') | KeyCode::Char('V') => {
+                            if KeyModifiers::CONTROL == key.modifiers {
+                                let mut clip: ClipboardContext = ClipboardProvider::new().unwrap();
+                                let contents = clip.get_contents().unwrap();
+                                app.set_add_channel_contents(&contents);
+                            }
+                        }
+                        _ => {
+                            app.add_channel_text_area.input(key);
+                        }
+                    },
                     AppState::Running => {
                         match key.code {
                             KeyCode::Char('q') | KeyCode::Char('Q') => {
@@ -322,6 +319,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                 }
             }
         }
+        //listen to the threads and react if we receive
         if let Ok(maybe_received_channel) = channel_reload_rx.try_recv() {
             match maybe_received_channel {
                 Ok(received_channel) => {

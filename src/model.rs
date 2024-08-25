@@ -227,7 +227,10 @@ impl<'a> App<'a> {
             ..Default::default()
         };
         self.channels.channels.push(channel_to_add);
+        let num_channels = self.num_channels();
         self.clear_add_channel_text_area();
+        //select the just added channel
+        self.channels.state.select(Some(num_channels - 1));
         //we no longer wish to display the textarea
         self.state = AppState::Running;
         channel_link.href
