@@ -352,12 +352,6 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
     }
 }
 
-///TODO refactor the above into this method....
-///Get the input from the player, depending on what state the app is
-pub async fn read_keys<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) -> Result<()> {
-    Ok(())
-}
-
 pub fn open_selected_link(app: &App) -> Result<()> {
     info!("Called open link...");
     if let Some(item) = app.get_selected_item() {
@@ -372,16 +366,6 @@ pub fn open_selected_link(app: &App) -> Result<()> {
                 open::that(url)?
             }
         }
-    }
-    Ok(())
-}
-
-///Deprecated, we should be a bit more shall we say, functional
-pub async fn reload_selected_channel<'a>(app: &mut App<'a>) -> Result<()> {
-    if let Some(selected_channel) = app.get_selected_channel() {
-        if let Some(channel) = fetch_rss_feed(&selected_channel.get_link()).await? {
-            app.update_selected_channel(&channel);
-        };
     }
     Ok(())
 }
