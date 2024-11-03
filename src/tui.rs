@@ -80,7 +80,8 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let header = match app.selected_pane {
         SelectedPane::Channels => Paragraph::new(HEADER_TEXT).block(header_block),
         SelectedPane::Items => {
-            Paragraph::new(format!("{}{}", HEADER_TEXT, " | [O]pen Item")).block(header_block)
+            Paragraph::new(format!("{}{}", HEADER_TEXT, " | [O]pen | [D]ownload "))
+                .block(header_block)
         }
     };
     frame.render_widget(header, top);
@@ -308,6 +309,9 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             KeyCode::Char('o') | KeyCode::Char('O') => {
                                 open_selected_link(app)?;
                             }
+                            KeyCode::Char('d') | KeyCode::Char('D') => {
+                                download_selected(app)?;
+                            }
                             KeyCode::Char('a') | KeyCode::Char('A') => {
                                 app.show_add_channel_dialog();
                             }
@@ -352,6 +356,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
     }
 }
 
+///Open the selected rss feed item in the browser
 pub fn open_selected_link(app: &App) -> Result<()> {
     info!("Called open link...");
     if let Some(item) = app.get_selected_item() {
@@ -370,6 +375,10 @@ pub fn open_selected_link(app: &App) -> Result<()> {
     Ok(())
 }
 
+///Download the selected item to a folder locally
+pub fn download_selected(app: &App) -> Result<()> {
+    Ok(())
+}
 pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
     if let Some(channel) = fetch_rss_feed(url).await? {
         Ok(Some(channel))
