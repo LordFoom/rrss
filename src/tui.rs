@@ -376,7 +376,16 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 }
 
 ///Download the selected item to a folder locally
-pub fn download_selected(app: &App) -> Result<()> {
+pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
+    //get the url
+    if let Some(item) = app.get_selected_item() {
+        if let Some(url) = &item.link {
+            //connect
+            //download
+            let pod = reqwest::get(url).await?;
+        }
+    };
+    //conclude
     Ok(())
 }
 pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
