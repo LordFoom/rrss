@@ -1,5 +1,5 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use log::info;
+use log::{error, info};
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -9,7 +9,7 @@ use std::{
 };
 use tokio::{sync::mpsc, time::sleep};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use crossterm::{
     event::{self, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
@@ -310,7 +310,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                 open_selected_link(app)?;
                             }
                             KeyCode::Char('d') | KeyCode::Char('D') => {
-                                download_selected(app)?;
+                                download_selected(app).await?;
                             }
                             KeyCode::Char('a') | KeyCode::Char('A') => {
                                 app.show_add_channel_dialog();
@@ -383,6 +383,19 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
             //connect
             //download
             let pod = reqwest::get(url).await?;
+            //check the status
+            let status = pod.status();
+            if status.is_success() {
+            } else {
+                let text = pod.text().await?;
+                let err_msg = format!(
+                    "Unable to download pod? status={}, message={}",
+                    status, text
+                );
+                error!("{}", err_msg);
+                return Err(anyhow!(err_msg));
+            }
+            //get the bytes from the response
         }
     };
     //conclude
