@@ -1,13 +1,13 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
 use log::{error, info};
 use regex::{bytes::Regex, Regex};
-use tempfile::tempdir;
 use std::{
     collections::HashMap,
     io::{self, stdout, Stdout},
     thread,
     time::Duration,
 };
+use tempfile::tempdir;
 use tokio::{sync::mpsc, time::sleep};
 
 use anyhow::{anyhow, Context, Result};
@@ -381,25 +381,6 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
     //get the url
     if let Some(item) = app.get_selected_item() {
         if let Some(url) = &item.link {
-            //temp directory
-            let tmp_dir = tempdir()?;
-            let file_name = if let Some(titles) = item.title {
-                if titles.is_empty() {
-                    "Unknown".to_string()
-                } else {
-                    if titles.get(0).is_none(){
-                        "Unknown".to_string()
-                    } else {
-                        let title = titles[0];
-                        let rgx = Regex::new(r"\s+").unwrap();
-                        let new_title = rgx.replace_all(&title, "-").unwrap();
-                        new_title
-                    }
-                }
-            }else {
-                "No title vec".to_string()
-            };
-            let pod_file = tmp_dir.path().join(item.title)
             //connect
             //
             //download
@@ -407,7 +388,23 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
             //check the status
             let status = pod.status();
             if status.is_success() {
-                let bytes = pod.bytes().await?
+                let bytes = pod.bytes().await?;
+                //temp directory
+                let tmp_dir = tempdir()?;
+                let pod_title = if let Some(titles) = &item.title {
+                    if titles.is_empty() {
+                        "Unknown".to_string()
+                    } else {
+                        if titles.get(0).is_none() {
+                            "Unknown".to_string()
+                        } else {
+                            titles[0].replace(" ", "-")
+                        }
+                    }
+                } else {
+                    "no_title_vec".to_string()
+                };
+                let pod_file = tmp_dir.path().join(pod_title);
             } else {
                 let text = pod.text().await?;
                 let err_msg = format!(
