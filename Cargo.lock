@@ -1295,6 +1295,7 @@ dependencies = [
  "log",
  "log4rs",
  "open",
+ "rand",
  "ratatui",
  "regex",
  "reqwest",
