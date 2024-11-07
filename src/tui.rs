@@ -1,13 +1,13 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
 use log::{error, info};
-use regex::{bytes::Regex, Regex};
+use regex::Regex;
 use std::{
     collections::HashMap,
-    io::{self, stdout, Stdout},
+    fs::File,
+    io::{self, copy, stdout, Cursor, Stdout},
     thread,
     time::Duration,
 };
-use tempfile::tempdir;
 use tokio::{sync::mpsc, time::sleep};
 
 use anyhow::{anyhow, Context, Result};
@@ -388,9 +388,6 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
             //check the status
             let status = pod.status();
             if status.is_success() {
-                let bytes = pod.bytes().await?;
-                //temp directory
-                let tmp_dir = tempdir()?;
                 let pod_title = if let Some(titles) = &item.title {
                     if titles.is_empty() {
                         "Unknown".to_string()
@@ -404,7 +401,15 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                 } else {
                     "no_title_vec".to_string()
                 };
-                let pod_file = tmp_dir.path().join(pod_title);
+                let mut dload_file = File::create(pod_title)?;
+                //YOU ARE here
+                //APPEND RANDOM 4 DIGITS OR MAYBE 6 TO THE TITLE...or should i? Let's think
+                //let rnd = rand::thread_rng();
+                //let suffix = rnd.gen_range(1..=1000000);
+                //let pod_file = tmp_dir.path().join(pod_title);
+
+                let mut bytes = Cursor::new(pod.bytes().await?);
+                copy(&mut bytes, &mut dload_file)?
             } else {
                 let text = pod.text().await?;
                 let err_msg = format!(
@@ -413,11 +418,9 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                 );
                 error!("{}", err_msg);
                 return Err(anyhow!(err_msg));
-            }
-            //get the bytes from the response
+            };
         }
-    };
-    //conclude
+    } //conclude
     Ok(())
 }
 pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
