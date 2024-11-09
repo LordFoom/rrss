@@ -380,11 +380,8 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
     //get the url
     if let Some(item) = app.get_selected_item() {
-        if let Some(url) = &item.link {
-            //connect
-            //
-            //download
-            let pod = reqwest::get(url).await?;
+        if let Some(enclosure) = &item.enclosure {
+            let pod = reqwest::get(&enclosure.url).await?;
             //check the status
             let status = pod.status();
             if status.is_success() {
