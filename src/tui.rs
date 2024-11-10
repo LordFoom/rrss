@@ -381,30 +381,31 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
     //get the url
     if let Some(item) = app.get_selected_item() {
         if let Some(enclosure) = &item.enclosure {
-            let pod = reqwest::get(&enclosure.url).await?;
+            let url = &enclosure.url;
+            let pod = reqwest::get(url).await?;
             //check the status
             let status = pod.status();
             if status.is_success() {
-                let pod_title = if let Some(titles) = &item.title {
-                    if titles.is_empty() {
-                        "Unknown".to_string()
-                    } else {
-                        if titles.get(0).is_none() {
-                            "Unknown".to_string()
-                        } else {
-                            titles[0].replace(" ", "-")
-                        }
-                    }
-                } else {
-                    "no_title_vec".to_string()
-                };
+                //get the file name from the path
+                let pod_title = url
+                    .split("/")
+                    .into_iter()
+                    .last()
+                    .unwrap_or("unknown_title.mp3");
+                //let pod_title = if let Some(titles) = &item.title {
+                //    if titles.is_empty() {
+                //        "Unknown".to_string()
+                //    } else {
+                //        if titles.get(0).is_none() {
+                //            "Unknown".to_string()
+                //        } else {
+                //            titles[0].replace(" ", "-")
+                //        }
+                //    }
+                //} else {
+                //    "no_title_vec".to_string()
+                //};
                 let mut dload_file = File::create(pod_title)?;
-                //YOU ARE here
-                //APPEND RANDOM 4 DIGITS OR MAYBE 6 TO THE TITLE...or should i? Let's think
-                //let rnd = rand::thread_rng();
-                //let suffix = rnd.gen_range(1..=1000000);
-                //let pod_file = tmp_dir.path().join(pod_title);
-
                 let mut bytes = Cursor::new(pod.bytes().await?);
                 copy(&mut bytes, &mut dload_file)?
             } else {
