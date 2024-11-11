@@ -392,6 +392,8 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                     .into_iter()
                     .last()
                     .unwrap_or("unknown_title.mp3");
+                //now we get rid of everything after 'mp3'
+                let pod_mp3_title = truncate_mp3(pod_title);
                 //let pod_title = if let Some(titles) = &item.title {
                 //    if titles.is_empty() {
                 //        "Unknown".to_string()
@@ -421,6 +423,18 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
     } //conclude
     Ok(())
 }
+
+///get rid of everything after the last 3, so if we have 'some_pod_cast.mp3?weird-stuff-here',
+///we should get back 'some_pod_cast.mp3'
+fn truncate_mp3(pod_title: &str) -> &str {
+    //this will mess up with unicode, probably, but, eh, cannot be bothered rn
+    if let Some(ridx) = pod_title.rfind(|x| x == '3') {
+        &pod_title[0..ridx]
+    } else {
+        pod_title
+    }
+}
+
 pub async fn load_channel(url: &str) -> Result<Option<Channel>> {
     if let Some(channel) = fetch_rss_feed(url).await? {
         Ok(Some(channel))
