@@ -393,7 +393,7 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                     .last()
                     .unwrap_or("unknown_title.mp3");
                 //now we get rid of everything after 'mp3'
-                let pod_mp3_title = truncate_mp3(pod_title);
+                let pod_mp3_title = truncate_query_params(pod_title);
                 //let pod_title = if let Some(titles) = &item.title {
                 //    if titles.is_empty() {
                 //        "Unknown".to_string()
@@ -426,9 +426,11 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
 
 ///get rid of everything after the last 3, so if we have 'some_pod_cast.mp3?weird-stuff-here',
 ///we should get back 'some_pod_cast.mp3'
-fn truncate_mp3(pod_title: &str) -> &str {
+fn truncate_query_params(pod_title: &str) -> &str {
     //this will mess up with unicode, probably, but, eh, cannot be bothered rn
-    if let Some(ridx) = pod_title.rfind(|x| x == '3') {
+    //also should probably check if it is an mp3 and etc and blah blah...actually, i can strip
+    //everything after and including the ? and not bother with mp3! Okay let us do it
+    if let Some(ridx) = pod_title.rfind(|x| x == '?') {
         &pod_title[0..ridx]
     } else {
         pod_title
@@ -510,4 +512,20 @@ fn centered_rect(h: u16, v: u16, rect: Rect) -> Rect {
         ],
     )
     .split(layout[1])[1]
+}
+
+#[cfg(test)]
+mod test {
+    use super::truncate_query_params;
+
+    #[test]
+    pub fn test_truncate_mp3() {
+        let file_name = "FoaBD-106-Trouble-at-Grogs.mp3?dest-id=549775";
+        let truncated_file_name = truncate_query_params(file_name);
+        assert_eq!("FoaBD-106-Trouble-at-Grogs.mp3", truncated_file_name);
+
+        let file_name_without_suffix = "i_am_mp3_2.mp3";
+        let truncated_file_name_2 = truncate_query_params(file_name_without_suffix);
+        assert_eq!(file_name_without_suffix, truncated_file_name_2);
+    }
 }
