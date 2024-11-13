@@ -392,21 +392,8 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                     .into_iter()
                     .last()
                     .unwrap_or("unknown_title.mp3");
-                //now we get rid of everything after 'mp3'
+                //now we get rid of everything after and including a ?
                 let pod_mp3_title = truncate_query_params(pod_title);
-                //let pod_title = if let Some(titles) = &item.title {
-                //    if titles.is_empty() {
-                //        "Unknown".to_string()
-                //    } else {
-                //        if titles.get(0).is_none() {
-                //            "Unknown".to_string()
-                //        } else {
-                //            titles[0].replace(" ", "-")
-                //        }
-                //    }
-                //} else {
-                //    "no_title_vec".to_string()
-                //};
                 let mut dload_file = File::create(pod_title)?;
                 let mut bytes = Cursor::new(pod.bytes().await?);
                 copy(&mut bytes, &mut dload_file)?
@@ -485,6 +472,10 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
     let centered_pane = centered_rect(80, 10, f.size());
     f.render_widget(Clear, centered_pane);
     f.render_widget(popup_paragraph, centered_pane);
+}
+
+pub fn show_dowloading_pod_popup(pod_title: &str, f: &mut Frame) {
+    let msg_str = format!("Downloading '{}'", pod_title);
 }
 
 ///Get an area that is centered'ish - with horizontal and vertical bias
