@@ -1,10 +1,12 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
+use color_eyre::owo_colors::OwoColorize;
 use log::{error, info};
 use regex::Regex;
 use std::{
     collections::HashMap,
     fs::File,
     io::{self, copy, stdout, Cursor, Stdout},
+    sync::mpsc,
     thread,
     time::Duration,
 };
@@ -379,6 +381,7 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 ///Download the selected item to a folder locally
 pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
     //get the url
+    let (popup_tx, popup_rx) = mpsc::channel();
     if let Some(item) = app.get_selected_item() {
         if let Some(enclosure) = &item.enclosure {
             let url = &enclosure.url;
@@ -393,8 +396,8 @@ pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
                     .last()
                     .unwrap_or("unknown_title.mp3");
                 //now we get rid of everything after and including a ?
-                let pod_mp3_title = truncate_query_params(pod_title);
-                let mut dload_file = File::create(pod_title)?;
+                let truncated_title = truncate_query_params(pod_title);
+                let mut dload_file = File::create(truncated_title)?;
                 let mut bytes = Cursor::new(pod.bytes().await?);
                 copy(&mut bytes, &mut dload_file)?
             } else {
@@ -474,8 +477,20 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
     f.render_widget(popup_paragraph, centered_pane);
 }
 
+///When we are downloading a podcast we want to
 pub fn show_dowloading_pod_popup(pod_title: &str, f: &mut Frame) {
     let msg_str = format!("Downloading '{}'", pod_title);
+    let popup_block = Block::new()
+        .style(Style::default().fg(tailwind::AMBER.c900))
+        .borders(Borders::all())
+        .border_type(BorderType::Double)
+        .border_style(Style::default().fg(tailwind::AMBER.c900));
+    let popup_paragraph = Paragraph::new(msg_str)
+        .block(popup_block)
+        .wrap(Wrap { trim: true });
+    let centered_pane = centered_rect(80, 20, f.size());
+    f.render_widget(Clear, centered_pane);
+    f.render_widget(popup_paragraph, centered_pane);
 }
 
 ///Get an area that is centered'ish - with horizontal and vertical bias
@@ -510,7 +525,7 @@ mod test {
     use super::truncate_query_params;
 
     #[test]
-    pub fn test_truncate_mp3() {
+    pub fn test_truncate_query_string() {
         let file_name = "FoaBD-106-Trouble-at-Grogs.mp3?dest-id=549775";
         let truncated_file_name = truncate_query_params(file_name);
         assert_eq!("FoaBD-106-Trouble-at-Grogs.mp3", truncated_file_name);
