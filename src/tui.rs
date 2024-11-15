@@ -6,7 +6,6 @@ use std::{
     collections::HashMap,
     fs::File,
     io::{self, copy, stdout, Cursor, Stdout},
-    sync::mpsc,
     thread,
     time::Duration,
 };
@@ -208,7 +207,14 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
     // let app_arc = Arc::new(Mutex::new(app));
     let (channel_reload_tx, mut channel_reload_rx) = mpsc::channel(1);
     let (popup_tx, mut popup_rx) = mpsc::channel(1);
+    let mut i = 1;
     loop {
+        //we use our little count to do our dots when we download
+        if i == 5 {
+            i = 1;
+        } else {
+            i += 1;
+        }
         // let mut app = app_arc.lock().unwrap();
         term.draw(|f| {
             ui(f, app).expect("Could not draw the ui");
@@ -313,6 +319,10 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                 open_selected_link(app)?;
                             }
                             KeyCode::Char('d') | KeyCode::Char('D') => {
+                                let popup_tx_clone = popup_tx.clone();
+                                let num_dots = "i" * i;
+                                info!("Downloading{}", num_dots);
+                                app.info_popup_text = Some("Downloading Pod".to_string());
                                 download_selected(app).await?;
                             }
                             KeyCode::Char('a') | KeyCode::Char('A') => {
@@ -379,9 +389,9 @@ pub fn open_selected_link(app: &App) -> Result<()> {
 }
 
 ///Download the selected item to a folder locally
-pub async fn download_selected<'a>(app: &App<'a>) -> Result<()> {
+pub async fn download_selected<'a>(app: &mut App<'a>) -> Result<()> {
     //get the url
-    let (popup_tx, popup_rx) = mpsc::channel();
+    //let (popup_tx, popup_rx) = mpsc::channel(1);
     if let Some(item) = app.get_selected_item() {
         if let Some(enclosure) = &item.enclosure {
             let url = &enclosure.url;
