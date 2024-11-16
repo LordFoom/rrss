@@ -1,5 +1,4 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use color_eyre::owo_colors::OwoColorize;
 use log::{error, info};
 use regex::Regex;
 use std::{
@@ -320,7 +319,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             }
                             KeyCode::Char('d') | KeyCode::Char('D') => {
                                 let popup_tx_clone = popup_tx.clone();
-                                let num_dots = "i" * i;
+                                let num_dots = "i".repeat(i);
                                 info!("Downloading{}", num_dots);
                                 app.info_popup_text = Some("Downloading Pod".to_string());
                                 download_selected(app).await?;
