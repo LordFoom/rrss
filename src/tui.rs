@@ -208,12 +208,6 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
     let (popup_tx, mut popup_rx) = mpsc::channel(1);
     let mut i = 1;
     loop {
-        //we use our little count to do our dots when we download
-        if i == 5 {
-            i = 1;
-        } else {
-            i += 1;
-        }
         // let mut app = app_arc.lock().unwrap();
         term.draw(|f| {
             ui(f, app).expect("Could not draw the ui");
@@ -319,6 +313,12 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             }
                             KeyCode::Char('d') | KeyCode::Char('D') => {
                                 let popup_tx_clone = popup_tx.clone();
+                                //we use our little count to do our dots when we download
+                                if i == 5 {
+                                    i = 1;
+                                } else {
+                                    i += 1;
+                                }
                                 let num_dots = "i".repeat(i);
                                 info!("Downloading{}", num_dots);
                                 app.info_popup_text = Some("Downloading Pod".to_string());
