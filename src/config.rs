@@ -23,7 +23,8 @@ pub fn load_config(path: Option<String>) -> Result<Option<RssConfig>> {
             info!("Found config file, parsing");
             //load the string from the file
             let toml_str = read_to_string(config_file)?;
-            let cfg = toml::from_str(&toml_str)?;
+            let cfg: RssConfig = toml::from_str(&toml_str)?;
+            info!("Channels found: {:?}", cfg.channels);
             Some(cfg)
         }
         false => {

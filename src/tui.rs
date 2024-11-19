@@ -94,6 +94,7 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
     let item_content = app.content_pane_text();
     display_selected_item(frame, &item_content, content_pane)?;
 
+    //we can leverage this to show the download
     if let Some(text) = app.info_popup_text.clone() {
         show_info_popup(&text, frame);
     }
@@ -487,7 +488,7 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
 }
 
 ///When we are downloading a podcast we want to
-pub fn show_dowloading_pod_popup(pod_title: &str, f: &mut Frame) {
+pub fn show_downloading_pod_popup(pod_title: &str, f: &mut Frame) {
     let msg_str = format!("Downloading '{}'", pod_title);
     let popup_block = Block::new()
         .style(Style::default().fg(tailwind::AMBER.c900))

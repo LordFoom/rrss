@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::error::Error;
+
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::{ArgGroup, Parser};
@@ -94,15 +97,27 @@ async fn main() -> Result<()> {
     let mut term = setup_terminal().context("Failed to setup terminal")?;
 
     let mut channels = Vec::new();
+    let mut loading_error_map: HashMap<String, Option<String>> = HashMap::new();
     for url in args.urls.clone() {
         //this we should make async, so we can start up and it does it in the background...?
         //answer...no
-        if let Some(channel) = fetch_rss_feed(&url).await? {
-            channels.push(channel);
-        } else {
-            debug!("No rss channel found...");
+        match fetch_rss_feed(&url).await {
+            Ok(fetch_result) => {
+                if let Some(channel) = fetch_result {
+                    channels.push(channel);
+                } else {
+                    debug!("No rss channel found...");
+                }
+                loading_error_map.insert(url, None);
+            }
+            Err(e) => {
+                loading_error_map.insert(url, Some(e.to_string()));
+                ()
+            }
         }
     }
+
+    //TODO YOU ARE BUSY DISPLAYING ERRORS ON LOADING CHANNELS
 
     //if no urls are passed in, we look at the config
     if args.urls.clone().is_empty() {

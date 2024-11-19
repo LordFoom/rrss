@@ -329,9 +329,9 @@ impl Channel {
         let mut return_link = String::new();
         for link in self.link.clone() {
             if let Some(href) = link.href {
-                if href.ends_with("xml") || href.ends_with("rss") {
-                    return_link = href
-                }
+                //if href.ends_with("xml") || href.ends_with("rss") {
+                return_link = href
+                //}
             }
         }
         info!("We are returning {return_link}");
