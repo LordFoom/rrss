@@ -117,8 +117,6 @@ async fn main() -> Result<()> {
         }
     }
 
-    //TODO YOU ARE BUSY DISPLAYING ERRORS ON LOADING CHANNELS
-
     //if no urls are passed in, we look at the config
     if args.urls.clone().is_empty() {
         info!("No urls passed in, checking for config file");
@@ -146,6 +144,9 @@ async fn main() -> Result<()> {
     }
 
     let mut app = App::from(channels);
+    //TODO YOU ARE BUSY DISPLAYING ERRORS ON LOADING CHANNELS
+    app.set_loading_errors(loading_error_map);
+
     run_app(&mut term, &mut app).await?;
     restore_terminal().context("Failed to restore terminal")?;
     Ok(())

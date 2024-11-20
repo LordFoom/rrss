@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use log::info;
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
@@ -27,6 +29,7 @@ pub struct App<'a> {
     pub construct_items: bool,
     ///When this is set, display the text in an info popup until unset
     pub info_popup_text: Option<String>,
+    pub error_popup_text: Option<String>,
     pub add_channel_text_area: TextArea<'a>,
 }
 
@@ -44,7 +47,26 @@ impl<'a> App<'a> {
             selected_pane: SelectedPane::Channels,
             construct_items: true,
             info_popup_text: None,
+            error_popup_text: None,
             add_channel_text_area: TextArea::default(),
+        }
+    }
+
+    ///Maybe we fail to load some rss channels,
+    ///so we need to display an error. To do that, we need error text.
+    ///If we have errors, set the app's error text.
+    pub fn set_loading_errors(&mut self, error_map: &HashMap<String, Option<String>>) {
+        if !error_map.is_empty() {
+            let error_txt = error_map
+                .into_iter()
+                .filter(|(k, v)| v.is_some())
+                .map(|(k, v)| v.get_or_insert("Unknown err".to_string()))
+                .fold(String::new(), |mut msg, curr_err_msg| {
+                    msg.push_str(curr_err_msg);
+                    return msg;
+                });
+
+            self.error_popup_text = Some(error_txt);
         }
     }
 
