@@ -501,7 +501,19 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
     f.render_widget(popup_paragraph, centered_pane);
 }
 
-pub fn show_error_popup(txt: &str, f: &mut Frame) {}
+pub fn show_error_popup(txt: &str, f: &mut Frame) {
+    let popup_block = Block::new()
+        .style(Style::default().fg(Color::Red))
+        .borders(Borders::all())
+        .border_type(BorderType::Double)
+        .border_style(Style::default().fg(Color::Red).bold());
+    let popup_paragraph = Paragraph::new(txt)
+        .block(popup_block)
+        .wrap(Wrap { trim: true });
+    let centered_pane = centered_rect(80, 10, f.size());
+    f.render_widget(Clear, centered_pane);
+    f.render_widget(popup_paragraph, centered_pane);
+}
 
 ///When we are downloading a podcast we want to
 pub fn show_downloading_pod_popup(pod_title: &str, f: &mut Frame) {
