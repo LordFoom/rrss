@@ -99,6 +99,10 @@ pub fn ui(frame: &mut Frame, app: &mut App) -> Result<()> {
         show_info_popup(&text, frame);
     }
 
+    if let Some(text) = app.error_popup_text.clone() {
+        show_error_popup(&text, frame);
+    }
+
     if app.state == AppState::AddChannel {
         show_add_channel_dialog(frame, app)
     }
@@ -315,6 +319,8 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             KeyCode::Char('d') | KeyCode::Char('D') => {
                                 let popup_tx_clone = popup_tx.clone();
                                 //we use our little count to do our dots when we download
+                                //okay we still need to work this out nicely but first we do the
+                                //error text
                                 if i == 5 {
                                     i = 1;
                                 } else {
@@ -330,6 +336,15 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                             }
                             KeyCode::Tab => app.change_selected_pane(),
                             _ => {}
+                        }
+                        let popup_tx_clone = popup_tx.clone();
+
+                        //if we have error text, but no timer, we add a timer to the popup
+                        if app.is_showing_untimed_error() {
+                            tokio::spawn(async move {
+                                sleep(Duration::from_secs(POPUP_TIME)).await;
+                                popup_tx_clone.send(()).await.unwrap();
+                            });
                         }
                     }
                     _ => {}
@@ -357,8 +372,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
         //we suppress weird little errors here
 
         if let Ok(()) = popup_rx.try_recv() {
-            app.info_popup_text = None;
-            info!("Cleared out popup text!")
+            app.reset_all_popups()
         }
 
         {
@@ -486,6 +500,8 @@ pub fn show_info_popup(txt: &str, f: &mut Frame) {
     f.render_widget(Clear, centered_pane);
     f.render_widget(popup_paragraph, centered_pane);
 }
+
+pub fn show_error_popup(txt: &str, f: &mut Frame) {}
 
 ///When we are downloading a podcast we want to
 pub fn show_downloading_pod_popup(pod_title: &str, f: &mut Frame) {

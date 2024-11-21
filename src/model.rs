@@ -30,6 +30,7 @@ pub struct App<'a> {
     ///When this is set, display the text in an info popup until unset
     pub info_popup_text: Option<String>,
     pub error_popup_text: Option<String>,
+    error_popup_thread_running: bool,
     pub add_channel_text_area: TextArea<'a>,
 }
 
@@ -48,6 +49,7 @@ impl<'a> App<'a> {
             construct_items: true,
             info_popup_text: None,
             error_popup_text: None,
+            error_popup_thread_running: false,
             add_channel_text_area: TextArea::default(),
         }
     }
@@ -60,9 +62,9 @@ impl<'a> App<'a> {
             let error_txt = error_map
                 .into_iter()
                 .filter(|(k, v)| v.is_some())
-                .map(|(k, v)| v.get_or_insert("Unknown err".to_string()))
+                .map(|(k, v)| v.clone().get_or_insert("Unknown err".to_string()).clone())
                 .fold(String::new(), |mut msg, curr_err_msg| {
-                    msg.push_str(curr_err_msg);
+                    msg.push_str(&curr_err_msg);
                     return msg;
                 });
 
@@ -274,6 +276,23 @@ impl<'a> App<'a> {
             self.add_channel_text_area
                 .move_cursor(tui_textarea::CursorMove::End);
         }
+    }
+
+    pub fn is_showing_untimed_error(&self) -> bool {
+        if self.error_popup_text.is_some() {
+            if !self.error_popup_thread_running {
+                return true;
+            }
+        }
+        false
+    }
+
+    ///Clear out info and error popups which may be being displayed
+    pub fn reset_all_popups(&mut self) {
+        self.info_popup_text = None;
+        self.error_popup_text = None;
+        self.error_popup_thread_running = false;
+        info!("Cleared out popup text!")
     }
 }
 

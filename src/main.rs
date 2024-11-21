@@ -145,7 +145,7 @@ async fn main() -> Result<()> {
 
     let mut app = App::from(channels);
     //TODO YOU ARE BUSY DISPLAYING ERRORS ON LOADING CHANNELS
-    app.set_loading_errors(loading_error_map);
+    app.set_loading_errors(&loading_error_map);
 
     run_app(&mut term, &mut app).await?;
     restore_terminal().context("Failed to restore terminal")?;
