@@ -317,7 +317,7 @@ pub async fn run_app<'a, B: Backend>(term: &mut Terminal<B>, app: &mut App<'a>) 
                                 open_selected_link(app)?;
                             }
                             KeyCode::Char('d') | KeyCode::Char('D') => {
-                                let popup_tx_clone = popup_tx.clone();
+                                //let popup_tx_clone = popup_tx.clone();
                                 //we use our little count to do our dots when we download
                                 //okay we still need to work this out nicely but first we do the
                                 //error text
@@ -414,11 +414,7 @@ pub async fn download_selected<'a>(app: &mut App<'a>) -> Result<()> {
             let status = pod.status();
             if status.is_success() {
                 //get the file name from the path
-                let pod_title = url
-                    .split("/")
-                    .into_iter()
-                    .last()
-                    .unwrap_or("unknown_title.mp3");
+                let pod_title = url.split('/').last().unwrap_or("unknown_title.mp3");
                 //now we get rid of everything after and including a ?
                 let truncated_title = truncate_query_params(pod_title);
                 let mut dload_file = File::create(truncated_title)?;

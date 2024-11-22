@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::error::Error;
-
 use anyhow::{Context, Result};
 use api::fetch_rss_feed;
 use clap::{ArgGroup, Parser};
@@ -15,6 +12,7 @@ use log4rs::{
     Config,
 };
 use model::{App, Channel};
+use std::collections::HashMap;
 use tui::{restore_terminal, run_app, setup_terminal};
 
 mod api;
@@ -112,7 +110,6 @@ async fn main() -> Result<()> {
             }
             Err(e) => {
                 loading_error_map.insert(url, Some(e.to_string()));
-                ()
             }
         }
     }

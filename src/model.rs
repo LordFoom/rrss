@@ -60,12 +60,12 @@ impl<'a> App<'a> {
     pub fn set_loading_errors(&mut self, error_map: &HashMap<String, Option<String>>) {
         if !error_map.is_empty() {
             let error_txt = error_map
-                .into_iter()
-                .filter(|(k, v)| v.is_some())
-                .map(|(k, v)| v.clone().get_or_insert("Unknown err".to_string()).clone())
+                .iter()
+                .filter(|(_, v)| v.is_some())
+                .map(|(_, v)| v.clone().get_or_insert("Unknown err".to_string()).clone())
                 .fold(String::new(), |mut msg, curr_err_msg| {
                     msg.push_str(&curr_err_msg);
-                    return msg;
+                    msg
                 });
 
             self.error_popup_text = Some(error_txt);
@@ -279,12 +279,7 @@ impl<'a> App<'a> {
     }
 
     pub fn is_showing_untimed_error(&self) -> bool {
-        if self.error_popup_text.is_some() {
-            if !self.error_popup_thread_running {
-                return true;
-            }
-        }
-        false
+        self.error_popup_text.is_some() && !self.error_popup_thread_running
     }
 
     ///Clear out info and error popups which may be being displayed
