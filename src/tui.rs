@@ -12,7 +12,7 @@ use tokio::{sync::mpsc, time::sleep};
 
 use anyhow::{anyhow, Context, Result};
 use crossterm::{
-    event::{self, EnableMouseCapture, Event, KeyCode, KeyModifiers},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
@@ -52,7 +52,8 @@ pub fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stdout>>> {
 
 pub fn restore_terminal() -> Result<()> {
     disable_raw_mode().context("Unable to disable raw mode")?;
-    stdout().execute(LeaveAlternateScreen)?;
+    execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)
+        .context("Failed to restore the terminal, best close it down")?;
     Ok(())
 }
 
